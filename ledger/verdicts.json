@@ -1,0 +1,90 @@
+{
+  "sma_crossover": {
+    "died_at": [
+      "gate 1",
+      "gate 2"
+    ],
+    "gates": {
+      "1": {
+        "benchmark": {
+          "after_tax_cagr": 0.1586424325552589,
+          "after_tax_total_return": 0.801125397848883,
+          "bars": 1007,
+          "cagr": 0.18081975610421944,
+          "exposure": 1.0,
+          "long_term_trades": 1,
+          "max_drawdown": -0.0853684771157458,
+          "profit_factor": 1.312119122581708,
+          "sharpe": 1.62858028857941,
+          "short_term_trades": 0,
+          "tax_paid": 0.14137507020862639,
+          "total_return": 0.9428890458666828,
+          "trades": 1,
+          "years": 3.996031746031746
+        },
+        "best_params": {
+          "fast": 35,
+          "slow": 60
+        },
+        "first_bar": "1993-02-01",
+        "last_bar": "1997-01-23",
+        "passed": false,
+        "strategy": {
+          "after_tax_cagr": 0.1367594971967636,
+          "after_tax_total_return": 0.6689889369510824,
+          "bars": 1007,
+          "cagr": 0.16138585120071922,
+          "exposure": 0.7576961271102284,
+          "long_term_trades": 1,
+          "max_drawdown": -0.07625004665543156,
+          "profit_factor": 1.393695073589735,
+          "sharpe": 1.7220660405534547,
+          "short_term_trades": 7,
+          "tax_paid": 0.13087251417066786,
+          "total_return": 0.8182277429529985,
+          "trades": 8,
+          "years": 3.996031746031746
+        },
+        "versus_benchmark": {
+          "beats_benchmark_after_costs": false,
+          "beats_benchmark_after_costs_and_taxes": false,
+          "excess_after_tax_cagr": -0.02188293535849528,
+          "excess_cagr": -0.01943390490350022,
+          "excess_total_return": -0.12466130291368427,
+          "sharpe_difference": 0.09348575197404463
+        }
+      },
+      "2": {
+        "alpha": 0.01,
+        "best_params": {
+          "fast": 35,
+          "slow": 60
+        },
+        "p_value": 0.46353646353646355,
+        "passed": false,
+        "permutations": 1000,
+        "permuted_95th": 0.7149954452615535,
+        "permuted_at_least_as_good": 463,
+        "permuted_median": 0.591623697131763,
+        "real_score": 0.5978622590607758
+      },
+      "3": {
+        "passed": null,
+        "status": "not run: the idea had already died"
+      },
+      "4": {
+        "passed": null,
+        "status": "not run: the idea had already died"
+      }
+    },
+    "idea": "sma_crossover",
+    "param_sets": 90,
+    "passed_all_gates": false,
+    "rationale": "Trend following: prices that have been rising keep rising for a while because investors react slowly to news. The loser is whoever sells early in a trend.",
+    "reason": "Even with the best parameters in hindsight, it did not beat buy-and-hold on the development window after costs and tax. Its in-sample result is no better than what the same optimisation finds on shuffled prices, so it looks like luck.",
+    "tests_so_far": {
+      "ideas": 1,
+      "param_sets": 90
+    }
+  }
+}

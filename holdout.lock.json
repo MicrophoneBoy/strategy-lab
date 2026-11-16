@@ -1,0 +1,6 @@
+{
+  "holdout_start": "2025-11-14",
+  "last_bar_when_locked": "2026-11-13",
+  "months": 12,
+  "rule": "Bars on or after holdout_start are the final exam. No idea, sweep or gate may read them. A strategy that passes all 4 gates gets exactly one run on them."
+}

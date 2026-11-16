@@ -1,0 +1,96 @@
+{
+  "all_ok": true,
+  "calibration": {
+    "false_alarm_rate_at_1_percent": 0.02,
+    "false_alarm_rate_at_5_percent": 0.08,
+    "median_p_value": 0.5422885572139303,
+    "ok": true,
+    "permutations_each": 200,
+    "series": 100
+  },
+  "checks": [
+    {
+      "alpha": 0.01,
+      "data": "real SPY development window",
+      "expected": "fail",
+      "gate": 2,
+      "gate_result": "fail",
+      "ok": true,
+      "p_value": 0.14885114885114886,
+      "strategy": "random signal"
+    },
+    {
+      "alpha": 0.01,
+      "data": "random walk",
+      "expected": "fail",
+      "gate": 4,
+      "gate_result": "fail",
+      "ok": true,
+      "p_value": 0.9850746268656716,
+      "strategy": "random signal"
+    },
+    {
+      "alpha": 0.01,
+      "data": "random walk",
+      "expected": "fail",
+      "gate": 2,
+      "gate_result": "fail",
+      "ok": true,
+      "p_value": 0.6293706293706294,
+      "strategy": "SMA crossover"
+    },
+    {
+      "alpha": 0.01,
+      "data": "random walk",
+      "expected": "fail",
+      "gate": 4,
+      "gate_result": "fail",
+      "ok": true,
+      "p_value": 0.5920398009950248,
+      "strategy": "SMA crossover"
+    },
+    {
+      "alpha": 0.01,
+      "data": "planted trend",
+      "expected": "pass",
+      "gate": 2,
+      "gate_result": "pass",
+      "ok": true,
+      "p_value": 0.000999000999000999,
+      "strategy": "SMA crossover"
+    },
+    {
+      "alpha": 0.01,
+      "data": "planted trend",
+      "expected": "pass",
+      "gate": 4,
+      "gate_result": "pass",
+      "ok": true,
+      "p_value": 0.004975124378109453,
+      "strategy": "SMA crossover"
+    }
+  ],
+  "planted_edge_beats_buy_and_hold": {
+    "gate_1_excess_after_tax_cagr": 0.3199007365751073,
+    "gate_3_excess_after_tax_cagr": 0.20992857246811614,
+    "ok": true
+  },
+  "planted_trend_per_day": 0.003,
+  "power": [
+    {
+      "detected": 1,
+      "series": 20,
+      "trend_per_day": 0.001
+    },
+    {
+      "detected": 9,
+      "series": 20,
+      "trend_per_day": 0.002
+    },
+    {
+      "detected": 17,
+      "series": 20,
+      "trend_per_day": 0.003
+    }
+  ]
+}

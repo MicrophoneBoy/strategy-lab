@@ -1,0 +1,15 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Secrets: API keys live in .env only, never in the repo
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+
+# Downloaded price data (rebuild with `uv run lab fetch`)
+data/

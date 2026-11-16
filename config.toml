@@ -1,0 +1,31 @@
+# Every assumption the engine uses is stated here. Change a number, rerun, and
+# the results change with it. Nothing is hard-coded elsewhere.
+
+[data]
+symbols = ["SPY", "QQQ", "IWM", "XLK", "XLF", "XLE", "XLV", "XLI", "XLY", "XLP", "XLU", "XLB"]
+benchmark = "SPY"
+source = "yahoo"        # "yahoo" (history back to 1993) or "alpaca" (needs paper keys in .env)
+start = "1993-01-01"
+holdout_months = 12     # the most recent 12 months are locked away (see holdout.lock.json)
+
+[costs]
+# Charged every time the position changes by one unit (flat to long is one
+# unit, long to short is two). Basis points of the amount traded.
+fee_bps = 0.0           # commission (Alpaca charges none on stocks and ETFs)
+slippage_bps = 2.0      # half the bid-ask spread plus slippage
+
+[tax]
+# Rough US federal rates. Gains on positions held one year or less are taxed
+# as ordinary income, longer holds at the long-term rate.
+short_term_rate = 0.22
+long_term_rate = 0.15
+
+[validation]
+train_bars = 1008       # 4 years of daily bars: the development and training window
+step_bars = 21          # walk-forward trades one month, then re-optimizes
+n_perm_insample = 1000
+n_perm_walkforward = 200
+alpha_insample = 0.01       # gate 2 passes if p is below this
+alpha_walkforward = 0.01    # gate 4, for 2 or more years of walk-forward data
+alpha_walkforward_short = 0.05  # gate 4, when there is only about 1 year
+seed = 20261116

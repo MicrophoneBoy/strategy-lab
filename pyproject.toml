@@ -1,0 +1,34 @@
+[project]
+name = "strategy-lab"
+version = "0.1.0"
+description = "A small, honest backtesting lab: every idea is scored against buy-and-hold SPY after costs and taxes, and must survive permutation tests."
+license = "MIT"
+authors = [
+    { name = "Michael Feng", email = "88675149+MicrophoneBoy@users.noreply.github.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "alpaca-py>=0.45.0",
+    "matplotlib>=3.11.2",
+    "numpy>=2.5.5",
+    "pandas>=3.1.1",
+    "pyarrow>=26.0.1",
+    "python-dotenv>=1.2.4",
+    "yfinance>=1.8.0",
+]
+
+[project.scripts]
+lab = "strategy_lab.cli:main"
+
+[build-system]
+requires = ["uv_build>=0.11.19,<0.12.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.2.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"

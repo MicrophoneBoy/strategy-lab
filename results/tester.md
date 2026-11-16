@@ -10,6 +10,12 @@ The gates are only worth trusting if they fail what should fail and pass what sh
 | SMA crossover | random walk | 4 | 0.5920 | < 0.01 | fail | fail | OK |
 | SMA crossover | planted trend | 2 | 0.0010 | < 0.01 | pass | pass | OK |
 | SMA crossover | planted trend | 4 | 0.0050 | < 0.01 | pass | pass | OK |
+| random portfolio | 8 random walks | 2 | 0.7403 | < 0.01 | fail | fail | OK |
+| random portfolio | 8 random walks | 4 | 0.7711 | < 0.01 | fail | fail | OK |
+| dual momentum | 8 random walks | 2 | 0.0939 | < 0.01 | fail | fail | OK |
+| dual momentum | 8 random walks | 4 | 0.8607 | < 0.01 | fail | fail | OK |
+| dual momentum | 8 planted trends | 2 | 0.0010 | < 0.01 | pass | pass | OK |
+| dual momentum | 8 planted trends | 4 | 0.0050 | < 0.01 | pass | pass | OK |
 
 Planted edge: a drift of 0.3% a day that flips direction about every 80 days, against 1% daily noise.
 

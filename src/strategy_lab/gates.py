@@ -8,6 +8,9 @@
 
 Gates 1 and 2 only read the development window. Walk-forward data is single
 use, so gates 3 and 4 run only for an idea that passed both.
+
+`family` is a single-asset Family with Bars, or a PortfolioFamily with a Panel.
+The benchmark is always single-asset Bars on the same dates.
 """
 
 from __future__ import annotations
@@ -16,7 +19,7 @@ import numpy as np
 
 from .config import Config
 from .data import Bars
-from .engine import backtest, buy_and_hold, compare
+from .engine import buy_and_hold, compare
 from .ledger import adjusted_alpha
 from .metrics import BARS_PER_YEAR
 from .permutation import best_in_sample, insample_permutation_test
@@ -26,7 +29,7 @@ from .walkforward import walk_forward, walk_forward_permutation_test
 
 def gate1(family: Family, dev: Bars, benchmark_dev: Bars, cfg: Config) -> dict:
     _, k = best_in_sample(family, dev, cfg.costs)
-    strategy = backtest(dev, family.positions(dev, k), cfg.costs, cfg.tax).metrics
+    strategy = family.backtest(dev, family.decisions(dev)[k], cfg.costs, cfg.tax).metrics
     benchmark = buy_and_hold(benchmark_dev, cfg.costs, cfg.tax).metrics
     versus = compare(strategy, benchmark)
     return {

@@ -14,8 +14,8 @@ from .config import Config
 from .data import Bars
 from .engine import backtest, buy_and_hold, compare
 from .permutation import best_in_sample, insample_permutation_test
-from .strategies import random_signal, sma_crossover
-from .synthetic import synthetic_bars
+from .strategies import dual_momentum, random_portfolio, random_signal, sma_crossover
+from .synthetic import synthetic_bars, synthetic_panel
 from .walkforward import walk_forward, walk_forward_permutation_test
 
 PLANTED_TREND = 0.003  # daily drift of the planted edge, against 1% daily noise
@@ -23,6 +23,7 @@ CALIBRATION_SERIES = 100
 CALIBRATION_PERMUTATIONS = 200
 POWER_TRENDS = (0.001, 0.002, 0.003)  # how small an edge can gate 2 still see?
 POWER_SERIES = 20
+PANEL_ASSETS = 8  # size of the synthetic multi-asset panels
 
 
 def run_tester(cfg: Config, spy_dev_window: Bars, say=print) -> dict:
@@ -65,6 +66,17 @@ def run_tester(cfg: Config, spy_dev_window: Bars, say=print) -> dict:
     permutation_check("SMA crossover", "random walk", trend_follower, random_walk, 4, False)
     permutation_check("SMA crossover", "planted trend", trend_follower, planted, 2, True)
     permutation_check("SMA crossover", "planted trend", trend_follower, planted, 4, True)
+
+    # The same checks for the multi-asset engine.
+    walk_panel = synthetic_panel(n, PANEL_ASSETS, seed=31, trend=0.0)
+    planted_panel = synthetic_panel(n, PANEL_ASSETS, seed=32, trend=PLANTED_TREND)
+    walks, trends = f"{PANEL_ASSETS} random walks", f"{PANEL_ASSETS} planted trends"
+    permutation_check("random portfolio", walks, random_portfolio(), walk_panel, 2, False)
+    permutation_check("random portfolio", walks, random_portfolio(), walk_panel, 4, False)
+    permutation_check("dual momentum", walks, dual_momentum(), walk_panel, 2, False)
+    permutation_check("dual momentum", walks, dual_momentum(), walk_panel, 4, False)
+    permutation_check("dual momentum", trends, dual_momentum(), planted_panel, 2, True)
+    permutation_check("dual momentum", trends, dual_momentum(), planted_panel, 4, True)
 
     # Gates 1 and 3 on the planted edge: it must also beat buy-and-hold.
     dev = planted.slice(0, v.train_bars)

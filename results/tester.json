@@ -68,6 +68,66 @@
       "ok": true,
       "p_value": 0.004975124378109453,
       "strategy": "SMA crossover"
+    },
+    {
+      "alpha": 0.01,
+      "data": "8 random walks",
+      "expected": "fail",
+      "gate": 2,
+      "gate_result": "fail",
+      "ok": true,
+      "p_value": 0.7402597402597403,
+      "strategy": "random portfolio"
+    },
+    {
+      "alpha": 0.01,
+      "data": "8 random walks",
+      "expected": "fail",
+      "gate": 4,
+      "gate_result": "fail",
+      "ok": true,
+      "p_value": 0.7711442786069652,
+      "strategy": "random portfolio"
+    },
+    {
+      "alpha": 0.01,
+      "data": "8 random walks",
+      "expected": "fail",
+      "gate": 2,
+      "gate_result": "fail",
+      "ok": true,
+      "p_value": 0.0939060939060939,
+      "strategy": "dual momentum"
+    },
+    {
+      "alpha": 0.01,
+      "data": "8 random walks",
+      "expected": "fail",
+      "gate": 4,
+      "gate_result": "fail",
+      "ok": true,
+      "p_value": 0.8606965174129353,
+      "strategy": "dual momentum"
+    },
+    {
+      "alpha": 0.01,
+      "data": "8 planted trends",
+      "expected": "pass",
+      "gate": 2,
+      "gate_result": "pass",
+      "ok": true,
+      "p_value": 0.000999000999000999,
+      "strategy": "dual momentum"
+    },
+    {
+      "alpha": 0.01,
+      "data": "8 planted trends",
+      "expected": "pass",
+      "gate": 4,
+      "gate_result": "pass",
+      "ok": true,
+      "p_value": 0.004975124378109453,
+      "strategy": "dual momentum"
     }
   ],
   "planted_edge_beats_buy_and_hold": {

@@ -16,6 +16,12 @@ been tested so far (the SMA crossover baseline), and it died. More ideas come ne
 A signal can never profit from the bar it was computed on. Costs are charged on every position
 change. Every number in `results/` comes out of this engine.
 
+Multi-asset ideas use the same rule with portfolio weights in place of a single position. The
+weights are long only and never add up to more than 100% of the account, so there is no
+leverage. A test checks that on one asset the two engines give identical results. When prices
+are shuffled for a multi-asset idea, every asset gets the same shuffle, so each day's moves stay
+together.
+
 **Four gates, in order.** An idea dies at the first gate it fails.
 
 1. **In-sample.** On the first 4 years of data, does the best parameter set beat buy-and-hold
@@ -52,6 +58,7 @@ Full output is in [`results/`](results). Headline numbers:
 | SMA crossover, gate 2 | p = 0.46: no better than luck. **Dead at gates 1 and 2.** |
 | Tester: random signals and no-edge data | all fail, as they should |
 | Tester: planted edge | passes gates 2 and 4, as it should |
+| Tester: the same checks on multi-asset portfolios | random portfolios fail, planted edge passes |
 
 Ideas tested: 1. Parameter sets tested: 90. Survivors: 0.
 
@@ -66,9 +73,9 @@ Needs [uv](https://docs.astral.sh/uv/) and Python 3.12.
 ```bash
 uv sync
 uv run lab fetch      # download daily bars, cache them, lock the holdout
-uv run pytest         # 57 tests
+uv run pytest         # 80 tests
 uv run lab baseline   # baseline strategy and parameter sweep vs buy-and-hold SPY
-uv run lab tester     # test the tester (about 2 minutes)
+uv run lab tester     # test the tester (about 5 minutes)
 uv run lab gates      # run the baseline idea through the gates
 ```
 
@@ -87,6 +94,8 @@ holdout.lock.json     the date the final holdout starts
 src/strategy_lab/
   data.py             download, cache, and the locked holdout
   engine.py           positions times next-bar log returns, minus costs
+  portfolio.py        the same rule for several assets: weights, drift, weekly rebalancing,
+                      trailing stops, and a tax estimate with first-in-first-out lots
   metrics.py          total return, CAGR, Sharpe, max drawdown, profit factor, trades, exposure
   tax.py              the after-tax estimate
   strategies.py       strategy families (an idea plus its parameter grid)
@@ -105,6 +114,8 @@ ledger/               tests.json, verdicts.json
 
 - Daily bars from Yahoo Finance, adjusted for splits and dividends. Yahoo revises adjusted
   prices over time, so a fresh download can change results slightly. The fingerprint shows it.
+  Alpaca's bars (which start in 2016) were compared with Yahoo's for SPY and XLK: the daily
+  returns match closely except on 7 days for SPY, 6 of them in March 2020.
 - Trades happen at the close that produced the signal. Slippage (2 basis points per change by
   default) stands in for the spread and for not getting exactly the closing price.
 - Cash earns nothing while a strategy is flat. Shorts are modelled as minus the log return, with

@@ -11,22 +11,25 @@ Overnight gaps and intraday moves are shuffled separately, following Masters,
 
 from __future__ import annotations
 
+from dataclasses import replace
+
 import numpy as np
 
 from .config import Costs
-from .data import Bars
-from .engine import net_log_returns
-from .strategies import Family
 
 
-def permute_bars(bars: Bars, rng: np.random.Generator, start: int = 0) -> Bars:
+def permute_bars(bars, rng: np.random.Generator, start: int = 0):
     """Shuffle the bars after index `start`. Bars 0..start are left untouched.
 
     The last close is preserved exactly, so buy-and-hold earns the same.
+
+    Works on single-asset Bars and on a multi-asset Panel. For a panel the same
+    shuffle is applied to every asset, so each day's moves stay together and
+    the relationships between assets survive.
     """
     n = len(bars)
-    m = n - start - 1
-    if m < 2:
+    count = n - start - 1
+    if count < 2:
         return bars
     lo, lh, ll, lc = (np.log(a) for a in (bars.open, bars.high, bars.low, bars.close))
     gap = lo[start + 1 :] - lc[start:-1]  # previous close to this open
@@ -34,18 +37,18 @@ def permute_bars(bars: Bars, rng: np.random.Generator, start: int = 0) -> Bars:
     low = ll[start + 1 :] - lo[start + 1 :]  # open to low
     close = lc[start + 1 :] - lo[start + 1 :]  # open to close
 
-    intraday_order = rng.permutation(m)
-    gap = gap[rng.permutation(m)]
+    intraday_order = rng.permutation(count)
+    gap = gap[rng.permutation(count)]
     high, low, close = high[intraday_order], low[intraday_order], close[intraday_order]
 
-    new_close = lc[start] + np.cumsum(gap + close)
-    new_open = np.concatenate([[lc[start]], new_close[:-1]]) + gap
+    new_close = lc[start] + np.cumsum(gap + close, axis=0)
+    new_open = np.concatenate([lc[start][None], new_close[:-1]]) + gap
 
     def rebuilt(original: np.ndarray, tail: np.ndarray) -> np.ndarray:
         return np.concatenate([original[: start + 1], np.exp(tail)])
 
-    return Bars(
-        dates=bars.dates,
+    return replace(
+        bars,
         open=rebuilt(bars.open, new_open),
         high=rebuilt(bars.high, new_open + high),
         low=rebuilt(bars.low, new_open + low),
@@ -53,9 +56,9 @@ def permute_bars(bars: Bars, rng: np.random.Generator, start: int = 0) -> Bars:
     )
 
 
-def best_in_sample(family: Family, bars: Bars, costs: Costs) -> tuple[float, int]:
+def best_in_sample(family, bars, costs: Costs) -> tuple[float, int]:
     """Optimise: total log return after costs of the best parameter set, and its index."""
-    net, _ = net_log_returns(family.position_matrix(bars), bars.close, costs)
+    net = family.net(family.decisions(bars), bars, costs)
     totals = net.sum(axis=1)
     k = int(np.argmax(totals))
     return float(totals[k]), k
@@ -66,9 +69,7 @@ def p_value(real: float, permuted: np.ndarray) -> float:
     return float((1 + np.sum(permuted >= real)) / (1 + len(permuted)))
 
 
-def insample_permutation_test(
-    family: Family, bars: Bars, costs: Costs, n_perm: int, seed: int
-) -> dict:
+def insample_permutation_test(family, bars, costs: Costs, n_perm: int, seed: int) -> dict:
     """Gate 2. Optimise on the real window, then on n_perm shuffled copies of it."""
     real, k = best_in_sample(family, bars, costs)
     rng = np.random.default_rng(seed)

@@ -60,6 +60,53 @@ class Bars:
         )
 
 
+@dataclass(frozen=True)
+class Panel:
+    """Several symbols on the same dates. Price arrays are (n_bars, n_symbols)."""
+
+    dates: np.ndarray  # datetime64[D]
+    symbols: tuple[str, ...]
+    open: np.ndarray
+    high: np.ndarray
+    low: np.ndarray
+    close: np.ndarray
+
+    def __len__(self) -> int:
+        return len(self.close)
+
+    def slice(self, start: int | None = None, stop: int | None = None) -> "Panel":
+        s = np.s_[start:stop]
+        return Panel(
+            self.dates[s], self.symbols, self.open[s], self.high[s], self.low[s], self.close[s]
+        )
+
+    def bars(self, symbol: str) -> Bars:
+        j = self.symbols.index(symbol)
+        return Bars(self.dates, self.open[:, j], self.high[:, j], self.low[:, j], self.close[:, j])
+
+    @classmethod
+    def from_frames(cls, frames: dict[str, pd.DataFrame]) -> "Panel":
+        """Keep only the dates every symbol has."""
+        common = None
+        for df in frames.values():
+            common = df.index if common is None else common.intersection(df.index)
+        common = common.sort_values()
+
+        def stack(column: str) -> np.ndarray:
+            return np.column_stack(
+                [df.loc[common, column].to_numpy(dtype=float) for df in frames.values()]
+            )
+
+        return cls(
+            dates=common.to_numpy().astype("datetime64[D]"),
+            symbols=tuple(frames),
+            open=stack("open"),
+            high=stack("high"),
+            low=stack("low"),
+            close=stack("close"),
+        )
+
+
 # --------------------------------------------------------------------------
 # Paths
 # --------------------------------------------------------------------------
@@ -272,6 +319,23 @@ def load_dev(symbol: str) -> pd.DataFrame:
 
 def load_dev_bars(symbol: str) -> Bars:
     return Bars.from_frame(load_dev(symbol))
+
+
+def load_dev_panel(symbols: tuple[str, ...], benchmark: str) -> tuple[Panel, Bars]:
+    """Development data for several symbols plus the benchmark, on the dates
+    they all share. Returns (panel of the symbols, benchmark bars)."""
+    frames = {s: load_dev(s) for s in dict.fromkeys((*symbols, benchmark))}
+    everything = Panel.from_frames(frames)
+    keep = [everything.symbols.index(s) for s in symbols]
+    panel = Panel(
+        everything.dates,
+        tuple(symbols),
+        everything.open[:, keep],
+        everything.high[:, keep],
+        everything.low[:, keep],
+        everything.close[:, keep],
+    )
+    return panel, everything.bars(benchmark)
 
 
 # --------------------------------------------------------------------------

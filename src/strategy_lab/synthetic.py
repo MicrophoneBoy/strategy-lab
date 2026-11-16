@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from .data import Bars
+from .data import Bars, Panel
 
 
 def synthetic_bars(
@@ -37,4 +37,17 @@ def synthetic_bars(
         high=np.exp(np.maximum(log_open, log_close) + wiggle_up),
         low=np.exp(np.minimum(log_open, log_close) - wiggle_down),
         close=np.exp(log_close),
+    )
+
+
+def synthetic_panel(n: int, n_assets: int, seed: int, trend: float = 0.0, **kwargs) -> Panel:
+    """Several independent synthetic assets on the same dates."""
+    series = [synthetic_bars(n, seed=seed * 1000 + j, trend=trend, **kwargs) for j in range(n_assets)]
+    return Panel(
+        dates=series[0].dates,
+        symbols=tuple(f"A{j}" for j in range(n_assets)),
+        open=np.column_stack([b.open for b in series]),
+        high=np.column_stack([b.high for b in series]),
+        low=np.column_stack([b.low for b in series]),
+        close=np.column_stack([b.close for b in series]),
     )

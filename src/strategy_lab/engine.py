@@ -86,11 +86,11 @@ def compare(strategy: dict, benchmark: dict) -> dict:
         "excess_total_return": strategy["total_return"] - benchmark["total_return"],
         "excess_cagr": strategy["cagr"] - benchmark["cagr"],
         "sharpe_difference": strategy["sharpe"] - benchmark["sharpe"],
-        "beats_benchmark_after_costs": strategy["cagr"] > benchmark["cagr"],
+        "beats_benchmark_after_costs": bool(strategy["cagr"] > benchmark["cagr"]),
     }
     if "after_tax_cagr" in strategy and "after_tax_cagr" in benchmark:
         out["excess_after_tax_cagr"] = strategy["after_tax_cagr"] - benchmark["after_tax_cagr"]
-        out["beats_benchmark_after_costs_and_taxes"] = (
+        out["beats_benchmark_after_costs_and_taxes"] = bool(
             strategy["after_tax_cagr"] > benchmark["after_tax_cagr"]
         )
-    return out
+    return {k: v if isinstance(v, bool) else float(v) for k, v in out.items()}

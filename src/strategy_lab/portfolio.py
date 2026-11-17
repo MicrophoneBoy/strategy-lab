@@ -205,6 +205,7 @@ def after_tax_portfolio(
             realised["short"] = realised["long"] = 0.0
 
     years = (n - 1) / BARS_PER_YEAR
+    equity, taxes = float(equity), float(taxes)
     return {
         "after_tax_total_return": equity - 1.0,
         "after_tax_cagr": equity ** (1.0 / years) - 1.0 if years > 0 and equity > 0 else -1.0,

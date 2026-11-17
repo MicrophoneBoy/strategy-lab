@@ -4,5 +4,11 @@
     "grid_hash": "d371221ff7ca",
     "idea": "sma_crossover",
     "param_sets": 90
+  },
+  {
+    "data": "QQQ plus 9 sector ETFs",
+    "grid_hash": "14668d954d62",
+    "idea": "dtfm",
+    "param_sets": 1
   }
 ]

@@ -1,0 +1,24 @@
+{
+  "paper_beat_spy": false,
+  "paper_minus_spy_price": -0.01861087157524577,
+  "paper_minus_spy_with_dividends": -0.021210335166973016,
+  "paper_return": -0.02160210000000007,
+  "paper_run": {
+    "end_date": "2026-11-16",
+    "end_equity": 97839.79,
+    "positions_at_end": "AAPL, MSFT, NVDA (confirmed through Alpaca's API)",
+    "spy_baseline": 742.17,
+    "start_date": "2026-07-17",
+    "start_equity": 100000.0,
+    "strategy": "dtfm",
+    "universe": "7 mega-cap stocks: NVDA, AAPL, MSFT, GOOGL, AMZN, META, TSLA"
+  },
+  "prices": {
+    "adjusted_close_end": 739.95,
+    "adjusted_open_start": 740.24,
+    "raw_close_end": 739.95,
+    "raw_open_start": 742.08
+  },
+  "spy_price_return_from_log_baseline": -0.0029912284247542997,
+  "spy_return_with_dividends": -0.0003917648330270529
+}

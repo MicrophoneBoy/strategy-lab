@@ -1,0 +1,10 @@
+[
+  {
+    "dates": [
+      "2026-07-17",
+      "2026-11-16"
+    ],
+    "purpose": "benchmark for the DTFM paper run; no strategy fitted or scored",
+    "symbol": "SPY"
+  }
+]

@@ -7,8 +7,9 @@ verdict: does it have a real edge, or did it only look good by luck?
 SPY makes money most years. If nothing clears the bar, the answer is "buy the index fund", and
 that counts as a correct result.
 
-Status: work in progress. The engine, the 4 gates and the tester checks are built. One idea has
-been tested so far (the SMA crossover baseline), and it died. More ideas come next.
+Status: work in progress. The engine, the 4 gates and the tester checks are built. Two ideas
+have been tested so far (an SMA crossover and a dual-timeframe momentum strategy), and both
+died. More ideas come next.
 
 ## How it works
 
@@ -59,11 +60,23 @@ Full output is in [`results/`](results). Headline numbers:
 | Tester: random signals and no-edge data | all fail, as they should |
 | Tester: planted edge | passes gates 2 and 4, as it should |
 | Tester: the same checks on multi-asset portfolios | random portfolios fail, planted edge passes |
+| DTFM on QQQ plus 9 sector ETFs, 1999 to 2003, gate 1 | lost 12.73% while SPY lost 31.80%, so it passes: +5.78% a year vs SPY |
+| DTFM, gate 2 | p = 0.84: 843 of 1,000 shuffled histories did at least as well. **Dead at gate 2.** |
+| DTFM, real paper-trading run, 2026-07-17 to 2026-11-16 | -2.16%, against -0.04% for SPY with dividends |
 
-Ideas tested: 1. Parameter sets tested: 90. Survivors: 0.
+Ideas tested: 2. Parameter sets tested: 91. Survivors: 0.
+
+**DTFM** (dual-timeframe momentum) holds up to 3 assets whose 20-session and 60-session returns
+are both positive, 10% of the account each, reviewed weekly, with an 8% trailing stop. Its
+rules were fixed before the run, so it has a single parameter set. It beat SPY in its first
+4 years only because it sat mostly in cash while SPY fell. The shuffle test shows that this
+says nothing about its timing: the same rules on scrambled prices usually did better. The lab
+verdict and a separate four-month paper-trading run of the same rules point the same way.
 
 See [`results/baseline.md`](results/baseline.md),
-[`results/verdict_sma_crossover.md`](results/verdict_sma_crossover.md) and
+[`results/verdict_sma_crossover.md`](results/verdict_sma_crossover.md),
+[`results/verdict_dtfm.md`](results/verdict_dtfm.md),
+[`results/dtfm_paper_comparison.md`](results/dtfm_paper_comparison.md) and
 [`results/tester.md`](results/tester.md).
 
 ## Run it
@@ -73,11 +86,15 @@ Needs [uv](https://docs.astral.sh/uv/) and Python 3.12.
 ```bash
 uv sync
 uv run lab fetch      # download daily bars, cache them, lock the holdout
-uv run pytest         # 80 tests
+uv run pytest         # 92 tests
 uv run lab baseline   # baseline strategy and parameter sweep vs buy-and-hold SPY
-uv run lab tester     # test the tester (about 5 minutes)
-uv run lab gates      # run the baseline idea through the gates
+uv run lab tester     # test the tester (about 8 minutes)
+uv run lab gates      # run the SMA baseline through the gates
+uv run lab gates --idea dtfm   # run DTFM through the gates
 ```
+
+`uv run lab paper-compare` rebuilds the paper-run comparison. It needs Alpaca paper keys, since
+it reads two SPY daily bars from Alpaca.
 
 Results are reproducible: the same cached data gives byte-identical output on rerun. Each result
 prints a fingerprint of the data it used.
@@ -105,9 +122,11 @@ src/strategy_lab/
   gates.py            the 4 gates and the verdict
   tester.py           test the tester
   ledger.py           the count of tests and the verdict on every idea
+  paper.py            a real paper-trading run compared with SPY over the same dates
+paper/                the paper run's start and end figures
 tests/                hand-checked examples, lookahead tests, holdout tests
 results/              output of the commands above
-ledger/               tests.json, verdicts.json
+ledger/               tests.json, verdicts.json, holdout_reads.json
 ```
 
 ## Assumptions and limits

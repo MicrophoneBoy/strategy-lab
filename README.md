@@ -7,7 +7,8 @@ verdict: does it have a real edge, or did it only look good by luck?
 SPY makes money most years. If nothing clears the bar, the answer is "buy the index fund", and
 that counts as a correct result.
 
-Status: nine classic ideas have been through the gates. None survived. The table is in
+Status: nine classic ideas have been through the gates. None survived. The full report is
+[`results/report.html`](results/report.html) (open it in a browser), and the short table is in
 [`results/ideas.md`](results/ideas.md).
 
 ## How it works
@@ -90,13 +91,14 @@ Needs [uv](https://docs.astral.sh/uv/) and Python 3.12.
 ```bash
 uv sync
 uv run lab fetch      # download daily bars, cache them, lock the holdout
-uv run pytest         # 118 tests
+uv run pytest         # 122 tests
 uv run lab baseline   # baseline strategy and parameter sweep vs buy-and-hold SPY
 uv run lab tester     # test the tester (about 8 minutes)
 uv run lab gates      # run the SMA baseline through the gates
 uv run lab gates --idea dtfm   # run any idea through the gates (see --help for the names)
 uv run lab add-data IEF        # the bond ETF that idea 4 needs
 uv run lab summary             # one table with every verdict
+uv run lab report              # results/report.html: every idea, sweep, gate and verdict
 ```
 
 `uv run lab paper-compare` rebuilds the paper-run comparison. It needs Alpaca paper keys, since
@@ -130,6 +132,7 @@ src/strategy_lab/
   tester.py           test the tester
   ledger.py           the count of tests and the verdict on every idea
   paper.py            a real paper-trading run compared with SPY over the same dates
+  html_report.py      the one-page HTML report
 paper/                the paper run's start and end figures
 tests/                hand-checked examples, lookahead tests, holdout tests
 results/              output of the commands above

@@ -366,3 +366,24 @@ def open_holdout(symbol: str, strategy_id: str) -> pd.DataFrame:
     runs_path.parent.mkdir(parents=True, exist_ok=True)
     runs_path.write_text(json.dumps(runs, indent=2, sort_keys=True) + "\n")
     return pd.read_parquet(_data_dir() / "holdout" / f"{symbol}.parquet")
+
+
+def add_to_cache(cfg: Config, symbols: tuple[str, ...], source: str | None = None) -> dict:
+    """Download extra symbols into the existing cache without touching the rest.
+    The holdout lock already exists and applies to them as well."""
+    cut = holdout_start()
+    frames = fetch(tuple(symbols), cfg.start, source or cfg.source)
+    meta = read_meta()
+    for s, df in frames.items():
+        dev, hold = df[df.index < cut], df[df.index >= cut]
+        dev.to_parquet(_data_dir() / "dev" / f"{s}.parquet")
+        hold.to_parquet(_data_dir() / "holdout" / f"{s}.parquet")
+        meta["symbols"][s] = {
+            "dev_bars": len(dev),
+            "dev_first": dev.index[0].strftime("%Y-%m-%d"),
+            "dev_last": dev.index[-1].strftime("%Y-%m-%d"),
+            "holdout_bars": len(hold),
+            "fingerprint": _fingerprint({s: dev}),  # added later, so it has its own
+        }
+    (_data_dir() / "meta.json").write_text(json.dumps(meta, indent=2) + "\n")
+    return meta

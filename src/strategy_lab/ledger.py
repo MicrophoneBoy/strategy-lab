@@ -70,3 +70,8 @@ def record_holdout_read(symbol: str, dates: list[str], purpose: str) -> None:
     if entry not in reads:
         reads.append(entry)
         _write("holdout_reads.json", reads)
+
+
+def test_order() -> list[dict]:
+    """Every counted test, in the order the ideas were first run."""
+    return _read("tests.json", [])

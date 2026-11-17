@@ -16,6 +16,7 @@ import json
 from . import ledger, report
 from .config import Config, load_config
 from .data import (
+    add_to_cache,
     fetch_and_cache,
     load_dev_bars,
     load_dev_panel,
@@ -25,13 +26,33 @@ from .data import (
 )
 from .engine import backtest, buy_and_hold, compare
 from .gates import run_gates
+from .ideas import (
+    breakout,
+    low_vol_sectors,
+    mean_reversion,
+    sector_rotation,
+    stocks_or_bonds,
+    turn_of_month,
+    volatility_filter,
+)
 from .paper import compare_paper, comparison_markdown, load_paper_run, spy_reference_prices
 from .strategies import dtfm, sma_crossover
 from .sweep import heatmap, plateau_check, sweep
 from .tester import run_tester, tester_markdown
 
 BASELINE = {"fast": 50, "slow": 200}
-DTFM_UNIVERSE = ("QQQ", "XLK", "XLF", "XLE", "XLV", "XLI", "XLY", "XLP", "XLU", "XLB")
+SECTORS = ("XLK", "XLF", "XLE", "XLV", "XLI", "XLY", "XLP", "XLU", "XLB")
+DTFM_UNIVERSE = ("QQQ", *SECTORS)
+SECTOR_IDEAS = {"sector_rotation": sector_rotation, "low_vol_sectors": low_vol_sectors}
+SPY_IDEAS = {
+    "turn_of_month": turn_of_month,
+    "volatility_filter": volatility_filter,
+    "mean_reversion": mean_reversion,
+}
+IDEAS = (
+    "sma_crossover", "dtfm", "sector_rotation", "stocks_or_bonds", "low_vol_sectors",
+    "turn_of_month", "volatility_filter", "mean_reversion", "breakout",
+)
 
 
 def data_note(cfg: Config, symbol: str) -> str:
@@ -47,12 +68,15 @@ def data_note(cfg: Config, symbol: str) -> str:
     )
 
 
-def panel_note(cfg: Config, description: str, panel) -> str:
+def panel_note(cfg: Config, description: str, panel, extra: tuple[str, ...] = ()) -> str:
     meta = read_meta()
+    fingerprint = f"`{meta['dev_fingerprint']}`" + "".join(
+        f", {s} `{meta['symbols'][s]['fingerprint']}`" for s in extra
+    )
     return (
         f"Data: {description}, daily bars from {meta['source']}, adjusted for splits and "
         f"dividends, on the dates they all share: {panel.dates[0]} to {panel.dates[-1]} "
-        f"({len(panel)} bars, fingerprint `{meta['dev_fingerprint']}`). Costs: "
+        f"({len(panel)} bars, fingerprint {fingerprint}). Costs: "
         f"{cfg.costs.fee_bps:g} bps fee plus {cfg.costs.slippage_bps:g} bps slippage on whatever "
         f"changes hands. Tax estimate: {cfg.tax.short_term:.0%} on gains held a year or less, "
         f"{cfg.tax.long_term:.0%} on longer holds. Cash earns 0. Bars from "
@@ -173,6 +197,21 @@ def load_idea(name: str, cfg: Config):
         panel, benchmark = load_dev_panel(DTFM_UNIVERSE, cfg.benchmark)
         note = panel_note(cfg, "QQQ plus 9 sector ETFs (" + ", ".join(DTFM_UNIVERSE) + ")", panel)
         return dtfm(), panel, benchmark, "QQQ plus 9 sector ETFs", note
+    if name in SECTOR_IDEAS:
+        panel, benchmark = load_dev_panel(SECTORS, cfg.benchmark)
+        note = panel_note(cfg, "9 sector ETFs (" + ", ".join(SECTORS) + ")", panel)
+        return SECTOR_IDEAS[name](), panel, benchmark, "9 sector ETFs", note
+    if name == "stocks_or_bonds":
+        panel, benchmark = load_dev_panel(("SPY", "IEF"), cfg.benchmark)
+        note = panel_note(cfg, "SPY and IEF", panel, extra=("IEF",))
+        return stocks_or_bonds(), panel, benchmark, "SPY and IEF", note
+    if name in SPY_IDEAS:
+        bars = load_dev_bars(cfg.benchmark)
+        return SPY_IDEAS[name](), bars, bars, "SPY", panel_note(cfg, "SPY", bars)
+    if name == "breakout":
+        panel, benchmark = load_dev_panel(("QQQ",), cfg.benchmark)
+        bars = panel.bars("QQQ")
+        return breakout(), bars, benchmark, "QQQ", panel_note(cfg, "QQQ", bars)
     raise ValueError(f"unknown idea: {name}")
 
 
@@ -180,10 +219,27 @@ def cmd_gates(cfg: Config, args) -> None:
     family, data, benchmark, label, note = load_idea(args.idea, cfg)
     ledger.record_test(family.name, family.grid, label)
     verdict = run_gates(family, data, benchmark, cfg, ledger.counts())
+    verdict["tested_on"] = label
     ledger.record_verdict(family.name, verdict)
     text = report.verdict_markdown(verdict, note)
     report.write_text(f"verdict_{family.name}.md", text)
     report.write_json(f"verdict_{family.name}.json", verdict)
+    print(text)
+
+
+def cmd_add_data(cfg: Config, args) -> None:
+    meta = add_to_cache(cfg, tuple(args.symbols))
+    for symbol in args.symbols:
+        s = meta["symbols"][symbol]
+        print(
+            f"  {symbol:<4} {s['dev_bars']:>5} dev bars  {s['dev_first']} to {s['dev_last']}"
+            f"   {s['holdout_bars']:>3} holdout bars (locked)   fingerprint {s['fingerprint']}"
+        )
+
+
+def cmd_summary(cfg: Config, args) -> None:
+    text = report.summary_markdown(ledger.verdicts(), ledger.test_order(), ledger.counts())
+    report.write_text("ideas.md", text)
     print(text)
 
 
@@ -205,8 +261,11 @@ def main() -> None:
     sub.add_parser("baseline", help="baseline strategy and sweep vs buy-and-hold SPY")
     sub.add_parser("tester", help="test the tester")
     gates = sub.add_parser("gates", help="run an idea through the 4 gates")
-    gates.add_argument("--idea", choices=["sma_crossover", "dtfm"], default="sma_crossover")
+    gates.add_argument("--idea", choices=IDEAS, default="sma_crossover")
     sub.add_parser("paper-compare", help="the real DTFM paper run vs SPY and the lab verdict")
+    add = sub.add_parser("add-data", help="download extra symbols into the existing cache")
+    add.add_argument("symbols", nargs="+")
+    sub.add_parser("summary", help="one table with every idea's verdict in plain language")
     args = parser.parse_args()
     cfg = load_config()
     if read_lock() is None and args.command not in ("fetch", "check-alpaca"):
@@ -218,6 +277,8 @@ def main() -> None:
         "tester": cmd_tester,
         "gates": cmd_gates,
         "paper-compare": cmd_paper_compare,
+        "add-data": cmd_add_data,
+        "summary": cmd_summary,
     }[args.command](cfg, args)
 
 

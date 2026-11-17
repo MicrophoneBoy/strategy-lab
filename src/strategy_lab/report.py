@@ -156,3 +156,99 @@ def verdict_markdown(verdict: dict, data_note: str) -> str:
             "least as well as the real data",
         ]
     return "\n".join(out) + "\n"
+
+
+# --------------------------------------------------------------------------
+# One table for every idea
+# --------------------------------------------------------------------------
+
+PLAIN_NAMES = {
+    "sma_crossover": "Moving-average crossover",
+    "dtfm": "DTFM (dual-timeframe momentum)",
+    "sector_rotation": "Sector momentum rotation",
+    "stocks_or_bonds": "Stocks or bonds by momentum",
+    "low_vol_sectors": "Low-volatility sectors",
+    "turn_of_month": "Turn of the month",
+    "volatility_filter": "Volatility filter",
+    "mean_reversion": "Short-term mean reversion",
+    "breakout": "Breakout",
+}
+
+
+def what_happened(verdict: dict) -> str:
+    """One or two plain sentences built from the gate results."""
+    g = verdict["gates"]
+    versus = g["1"]["versus_benchmark"]
+    excess, excess_tax = versus["excess_cagr"], versus["excess_after_tax_cagr"]
+    start, end = g["1"]["first_bar"][:4], g["1"]["last_bar"][:4]
+    first = (
+        f"In its first 4 years ({start} to {end}) the best version "
+        f"{'beat' if excess > 0 else 'trailed'} SPY by {abs(excess) * 100:.2f}% a year"
+    )
+    shuffles = (
+        f"{g['2']['permuted_at_least_as_good']:,} of {g['2']['permutations']:,} shuffled price "
+        f"histories did at least as well (p = {g['2']['p_value']:.4f}, needed below "
+        f"{g['2']['alpha']:.4f})"
+    )
+    if not g["1"]["passed"]:
+        if excess > 0:
+            first += f" before tax, but after tax it was {signed_pct(excess_tax)} a year"
+        tail = (
+            "so the pattern may be real but it does not pay enough to beat SPY."
+            if g["2"]["passed"]
+            else "so even that result looks like luck."
+        )
+        return f"{first}. {shuffles[0].upper() + shuffles[1:]}, {tail}"
+    if not g["2"]["passed"]:
+        return f"{first}, but {shuffles}, so that looks like luck."
+    out = g["3"]["versus_benchmark"]
+    text = (
+        f"{first} and passed the shuffle test (p = {g['2']['p_value']:.4f}). Out of sample "
+        f"({g['3']['first_bar'][:4]} to {g['3']['last_bar'][:4]}) it "
+        f"{'beat' if out['excess_cagr'] > 0 else 'trailed'} SPY by "
+        f"{abs(out['excess_cagr']) * 100:.2f}% a year after costs "
+        f"({signed_pct(out['excess_after_tax_cagr'])} after tax)"
+    )
+    if not g["3"]["passed"]:
+        return text + "."
+    return (
+        text
+        + f". In the out-of-sample shuffle test, {g['4']['permuted_at_least_as_good']:,} of "
+        f"{g['4']['permutations']:,} shuffles did at least as well (p = {g['4']['p_value']:.4f}, "
+        f"needed below {g['4']['alpha']:.4f})."
+    )
+
+
+def summary_markdown(verdicts: dict, tests: list[dict], counts: dict) -> str:
+    lines = [
+        "# Every idea tested so far",
+        "",
+        "The bar: beat buy-and-hold SPY after costs and tax, and show the result is better than "
+        "luck. An idea is dead at the first gate it fails.",
+        "",
+        "| # | Idea | Tested on | Versions tried | Gate 1: beat SPY in-sample | Gate 2: better than luck "
+        "| Gate 3: beat SPY out of sample | Gate 4: better than luck | Verdict | What happened |",
+        "|---:|---|---|---:|---|---|---|---|---|---|",
+    ]
+    survivors, seen = 0, []
+    for test in tests:
+        name = test["idea"]
+        if name in seen or name not in verdicts:
+            continue
+        seen.append(name)
+        v = verdicts[name]
+        g = v["gates"]
+        survivors += bool(v["passed_all_gates"])
+        outcome = "**SURVIVED**" if v["passed_all_gates"] else "Dead at " + ", ".join(v["died_at"])
+        lines.append(
+            f"| {len(seen)} | {PLAIN_NAMES.get(name, name)} | {test['data'].replace(' development window', '')} "
+            f"| {v['param_sets']} | {gate_status(g['1'])} | {gate_status(g['2'])} | {gate_status(g['3'])} "
+            f"| {gate_status(g['4'])} | {outcome} | {what_happened(v)} |"
+        )
+    lines += [
+        "",
+        f"**{counts['ideas']} ideas tested, {counts['param_sets']} versions in total, "
+        f"{survivors} survivor(s).**",
+        "",
+    ]
+    return "\n".join(lines)

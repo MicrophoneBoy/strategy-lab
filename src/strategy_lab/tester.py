@@ -24,6 +24,8 @@ CALIBRATION_PERMUTATIONS = 200
 POWER_TRENDS = (0.001, 0.002, 0.003)  # how small an edge can gate 2 still see?
 POWER_SERIES = 20
 PANEL_ASSETS = 8  # size of the synthetic multi-asset panels
+TESTER_INSAMPLE_SHUFFLES = 1000  # fixed here so the tester does not change with config.toml
+TESTER_WALKFORWARD_SHUFFLES = 200
 
 
 def run_tester(cfg: Config, spy_dev_window: Bars, say=print) -> dict:
@@ -38,12 +40,12 @@ def run_tester(cfg: Config, spy_dev_window: Bars, say=print) -> dict:
         say(f"  {name} on {data_name}, gate {gate} ...")
         if gate == 2:
             result = insample_permutation_test(
-                family, bars.slice(0, v.train_bars), cfg.costs, v.n_perm_insample, v.seed
+                family, bars.slice(0, v.train_bars), cfg.costs, TESTER_INSAMPLE_SHUFFLES, v.seed
             )
             alpha = v.alpha_insample
         else:
             result = walk_forward_permutation_test(
-                family, bars, cfg.costs, v.train_bars, v.step_bars, v.n_perm_walkforward, v.seed + 1
+                family, bars, cfg.costs, v.train_bars, v.step_bars, TESTER_WALKFORWARD_SHUFFLES, v.seed + 1
             )
             alpha = v.alpha_walkforward
         passed = result["p_value"] < alpha

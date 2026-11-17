@@ -2,7 +2,7 @@
 # the results change with it. Nothing is hard-coded elsewhere.
 
 [data]
-symbols = ["SPY", "QQQ", "IWM", "XLK", "XLF", "XLE", "XLV", "XLI", "XLY", "XLP", "XLU", "XLB"]
+symbols = ["SPY", "QQQ", "IWM", "XLK", "XLF", "XLE", "XLV", "XLI", "XLY", "XLP", "XLU", "XLB", "IEF"]
 benchmark = "SPY"
 source = "yahoo"        # "yahoo" (history back to 1993) or "alpaca" (needs paper keys in .env)
 start = "1993-01-01"
@@ -23,8 +23,8 @@ long_term_rate = 0.15
 [validation]
 train_bars = 1008       # 4 years of daily bars: the development and training window
 step_bars = 21          # walk-forward trades one month, then re-optimizes
-n_perm_insample = 1000
-n_perm_walkforward = 200
+n_perm_insample = 5000      # ideas 1 and 2 were run with 1000
+n_perm_walkforward = 2000   # 200 could not reach the stricter pass bars
 alpha_insample = 0.01       # gate 2 passes if p is below this
 alpha_walkforward = 0.01    # gate 4, for 2 or more years of walk-forward data
 alpha_walkforward_short = 0.05  # gate 4, when there is only about 1 year

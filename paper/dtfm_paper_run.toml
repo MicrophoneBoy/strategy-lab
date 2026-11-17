@@ -1,0 +1,12 @@
+# The real DTFM paper-trading run: fake money in an Alpaca paper account.
+# These are the only hand-entered numbers. Every return is computed from them
+# by `uv run lab paper-compare`.
+
+strategy = "dtfm"
+universe = "7 mega-cap stocks: NVDA, AAPL, MSFT, GOOGL, AMZN, META, TSLA"
+start_date = "2026-07-17"
+start_equity = 100000.00
+end_date = "2026-11-16"
+end_equity = 97839.79      # account equity as read on the end date
+positions_at_end = "AAPL, MSFT, NVDA (confirmed through Alpaca's API)"
+spy_baseline = 742.17      # SPY at the 2026-07-17 open, as recorded in the experiment log

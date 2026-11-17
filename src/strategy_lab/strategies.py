@@ -190,3 +190,83 @@ def random_portfolio(n_seeds: int = 30, max_weight: float = 0.15, base_seed: int
         grid=grid,
         weight_matrix=matrix,
     )
+
+
+def dtfm_weights(
+    panel: Panel,
+    fast: int,
+    slow: int,
+    stop: float,
+    slots: int,
+    buy_weight: float,
+    max_weight: float,
+) -> np.ndarray:
+    """Dual-Timeframe Momentum as it was run in the paper account.
+
+    Everything happens at the weekly review (the week's last close):
+      1. Sell a holding if its fast or slow trailing return is 0 or below, or
+         if it closed `stop` or more below its highest close since purchase.
+      2. Trim any holding that has drifted above `max_weight`.
+      3. Fill free slots (at most `slots` positions) with the qualifying assets
+         not already held, strongest slow return first, `buy_weight` of the
+         account each. An asset sold at this review cannot be bought back
+         until a later one.
+    Between reviews nothing is traded and holdings are never topped up.
+    """
+    close = panel.close
+    n, m = close.shape
+    returns_fast, returns_slow = trailing_return(close, fast), trailing_return(close, slow)
+    review = last_trading_day_of_week(panel.dates)
+    step = np.ones_like(close)
+    step[1:] = close[1:] / close[:-1]  # 1 + simple return of each bar
+
+    out = np.zeros((n, m))
+    held = np.zeros(m)
+    peak = np.zeros(m)
+    for t in range(n):
+        held = held * step[t] / (1.0 + (held * (step[t] - 1.0)).sum())
+        invested = held > 0.0
+        peak = np.where(invested, np.maximum(peak, close[t]), 0.0)
+        if review[t]:
+            qualifies = (returns_fast[t] > 0.0) & (returns_slow[t] > 0.0)
+            stopped = invested & (close[t] <= peak * (1.0 - stop))
+            sold = invested & (~qualifies | stopped)
+            held[sold] = 0.0
+            peak[sold] = 0.0
+            held = np.minimum(held, max_weight)
+            free = slots - int(np.sum(held > 0.0))
+            if free > 0:
+                candidates = qualifies & ~(held > 0.0) & ~sold
+                ranking = np.where(candidates, returns_slow[t], -np.inf)
+                for j in np.argsort(-ranking, kind="stable")[:free]:
+                    if not candidates[j]:
+                        break
+                    held[j] = min(buy_weight, 1.0 - held.sum())
+                    peak[j] = close[t, j]
+        out[t] = held
+    return out
+
+
+def dtfm(
+    fast: int = 20,
+    slow: int = 60,
+    stop: float = 0.08,
+    slots: int = 3,
+    buy_weight: float = 0.10,
+    max_weight: float = 0.15,
+) -> PortfolioFamily:
+    """DTFM with its rules fixed in advance: one parameter set, nothing to optimise."""
+    params = {
+        "fast": fast, "slow": slow, "stop": stop,
+        "slots": slots, "buy_weight": buy_weight, "max_weight": max_weight,
+    }
+    return PortfolioFamily(
+        name="dtfm",
+        rationale=(
+            "Dual-timeframe momentum: assets rising over both 20 and 60 sessions tend to keep "
+            "rising, as investors are slow to price in good news, and a trailing stop cuts "
+            "losers. The loser is whoever sells a winner early."
+        ),
+        grid=(params,),
+        weight_matrix=lambda panel: dtfm_weights(panel, **params)[None],
+    )

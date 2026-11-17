@@ -14,7 +14,7 @@ from .config import Config
 from .data import Bars
 from .engine import backtest, buy_and_hold, compare
 from .permutation import best_in_sample, insample_permutation_test
-from .strategies import dual_momentum, random_portfolio, random_signal, sma_crossover
+from .strategies import dtfm, dual_momentum, random_portfolio, random_signal, sma_crossover
 from .synthetic import synthetic_bars, synthetic_panel
 from .walkforward import walk_forward, walk_forward_permutation_test
 
@@ -77,6 +77,11 @@ def run_tester(cfg: Config, spy_dev_window: Bars, say=print) -> dict:
     permutation_check("dual momentum", walks, dual_momentum(), walk_panel, 4, False)
     permutation_check("dual momentum", trends, dual_momentum(), planted_panel, 2, True)
     permutation_check("dual momentum", trends, dual_momentum(), planted_panel, 4, True)
+    # DTFM has one fixed parameter set, so these also check the gates when nothing is optimised.
+    permutation_check("DTFM", walks, dtfm(), walk_panel, 2, False)
+    permutation_check("DTFM", walks, dtfm(), walk_panel, 4, False)
+    permutation_check("DTFM", trends, dtfm(), planted_panel, 2, True)
+    permutation_check("DTFM", trends, dtfm(), planted_panel, 4, True)
 
     # Gates 1 and 3 on the planted edge: it must also beat buy-and-hold.
     dev = planted.slice(0, v.train_bars)

@@ -4,7 +4,8 @@
     check-alpaca  read the Alpaca paper account (needs paper keys in .env)
     baseline      SMA crossover on SPY vs buy-and-hold, plus the parameter sweep
     tester        test the tester: random signals must fail, a planted edge must pass
-    gates         run the baseline idea through the 4 gates
+    gates         run an idea through the 4 gates (--idea sma_crossover or dtfm)
+    paper-compare the real DTFM paper run vs SPY over the same dates, next to the lab verdict
 """
 
 from __future__ import annotations
@@ -14,14 +15,23 @@ import json
 
 from . import ledger, report
 from .config import Config, load_config
-from .data import fetch_and_cache, load_dev_bars, paper_keys, read_lock, read_meta
+from .data import (
+    fetch_and_cache,
+    load_dev_bars,
+    load_dev_panel,
+    paper_keys,
+    read_lock,
+    read_meta,
+)
 from .engine import backtest, buy_and_hold, compare
 from .gates import run_gates
-from .strategies import sma_crossover
+from .paper import compare_paper, comparison_markdown, load_paper_run, spy_reference_prices
+from .strategies import dtfm, sma_crossover
 from .sweep import heatmap, plateau_check, sweep
 from .tester import run_tester, tester_markdown
 
 BASELINE = {"fast": 50, "slow": 200}
+DTFM_UNIVERSE = ("QQQ", "XLK", "XLF", "XLE", "XLV", "XLI", "XLY", "XLP", "XLU", "XLB")
 
 
 def data_note(cfg: Config, symbol: str) -> str:
@@ -34,6 +44,20 @@ def data_note(cfg: Config, symbol: str) -> str:
         f"{cfg.costs.slippage_bps:g} bps slippage per position change. Tax estimate: "
         f"{cfg.tax.short_term:.0%} on gains held a year or less, {cfg.tax.long_term:.0%} on longer "
         f"holds. Bars from {meta['holdout_start']} on are the locked holdout and were not read."
+    )
+
+
+def panel_note(cfg: Config, description: str, panel) -> str:
+    meta = read_meta()
+    return (
+        f"Data: {description}, daily bars from {meta['source']}, adjusted for splits and "
+        f"dividends, on the dates they all share: {panel.dates[0]} to {panel.dates[-1]} "
+        f"({len(panel)} bars, fingerprint `{meta['dev_fingerprint']}`). Costs: "
+        f"{cfg.costs.fee_bps:g} bps fee plus {cfg.costs.slippage_bps:g} bps slippage on whatever "
+        f"changes hands. Tax estimate: {cfg.tax.short_term:.0%} on gains held a year or less, "
+        f"{cfg.tax.long_term:.0%} on longer holds. Cash earns 0. Bars from "
+        f"{meta['holdout_start']} on are the locked holdout and were not read. For a portfolio, "
+        "\"Trades\" counts the days on which something was traded."
     )
 
 
@@ -139,15 +163,36 @@ def cmd_tester(cfg: Config, args) -> None:
     print(text)
 
 
+def load_idea(name: str, cfg: Config):
+    """Return (family, its data, benchmark bars on the same dates, ledger label, data note)."""
+    if name == "sma_crossover":
+        bars = load_dev_bars(cfg.benchmark)
+        label = f"{cfg.benchmark} development window"
+        return sma_crossover(), bars, bars, label, data_note(cfg, cfg.benchmark)
+    if name == "dtfm":
+        panel, benchmark = load_dev_panel(DTFM_UNIVERSE, cfg.benchmark)
+        note = panel_note(cfg, "QQQ plus 9 sector ETFs (" + ", ".join(DTFM_UNIVERSE) + ")", panel)
+        return dtfm(), panel, benchmark, "QQQ plus 9 sector ETFs", note
+    raise ValueError(f"unknown idea: {name}")
+
+
 def cmd_gates(cfg: Config, args) -> None:
-    bars = load_dev_bars(cfg.benchmark)
-    family = sma_crossover()
-    ledger.record_test(family.name, family.grid, f"{cfg.benchmark} development window")
-    verdict = run_gates(family, bars, bars, cfg, ledger.counts())
+    family, data, benchmark, label, note = load_idea(args.idea, cfg)
+    ledger.record_test(family.name, family.grid, label)
+    verdict = run_gates(family, data, benchmark, cfg, ledger.counts())
     ledger.record_verdict(family.name, verdict)
-    text = report.verdict_markdown(verdict, data_note(cfg, cfg.benchmark))
+    text = report.verdict_markdown(verdict, note)
     report.write_text(f"verdict_{family.name}.md", text)
     report.write_json(f"verdict_{family.name}.json", verdict)
+    print(text)
+
+
+def cmd_paper_compare(cfg: Config, args) -> None:
+    run = load_paper_run()
+    result = compare_paper(run, spy_reference_prices(run["start_date"], run["end_date"]))
+    text = comparison_markdown(run, result, ledger.verdicts().get(run["strategy"]))
+    report.write_text("dtfm_paper_comparison.md", text)
+    report.write_json("dtfm_paper_comparison.json", {"paper_run": run, **result})
     print(text)
 
 
@@ -159,7 +204,9 @@ def main() -> None:
     sub.add_parser("check-alpaca", help="read the Alpaca paper account")
     sub.add_parser("baseline", help="baseline strategy and sweep vs buy-and-hold SPY")
     sub.add_parser("tester", help="test the tester")
-    sub.add_parser("gates", help="run the baseline idea through the 4 gates")
+    gates = sub.add_parser("gates", help="run an idea through the 4 gates")
+    gates.add_argument("--idea", choices=["sma_crossover", "dtfm"], default="sma_crossover")
+    sub.add_parser("paper-compare", help="the real DTFM paper run vs SPY and the lab verdict")
     args = parser.parse_args()
     cfg = load_config()
     if read_lock() is None and args.command not in ("fetch", "check-alpaca"):
@@ -170,6 +217,7 @@ def main() -> None:
         "baseline": cmd_baseline,
         "tester": cmd_tester,
         "gates": cmd_gates,
+        "paper-compare": cmd_paper_compare,
     }[args.command](cfg, args)
 
 

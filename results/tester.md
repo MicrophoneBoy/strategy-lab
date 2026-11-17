@@ -16,6 +16,10 @@ The gates are only worth trusting if they fail what should fail and pass what sh
 | dual momentum | 8 random walks | 4 | 0.8607 | < 0.01 | fail | fail | OK |
 | dual momentum | 8 planted trends | 2 | 0.0010 | < 0.01 | pass | pass | OK |
 | dual momentum | 8 planted trends | 4 | 0.0050 | < 0.01 | pass | pass | OK |
+| DTFM | 8 random walks | 2 | 0.0669 | < 0.01 | fail | fail | OK |
+| DTFM | 8 random walks | 4 | 0.8209 | < 0.01 | fail | fail | OK |
+| DTFM | 8 planted trends | 2 | 0.0010 | < 0.01 | pass | pass | OK |
+| DTFM | 8 planted trends | 4 | 0.0050 | < 0.01 | pass | pass | OK |
 
 Planted edge: a drift of 0.3% a day that flips direction about every 80 days, against 1% daily noise.
 

@@ -61,3 +61,12 @@ def record_verdict(idea: str, verdict: dict) -> None:
 
 def verdicts() -> dict:
     return _read("verdicts.json", {})
+
+
+def record_holdout_read(symbol: str, dates: list[str], purpose: str) -> None:
+    """Log a benchmark-only read of bars inside the locked holdout period."""
+    reads = _read("holdout_reads.json", [])
+    entry = {"symbol": symbol, "dates": dates, "purpose": purpose}
+    if entry not in reads:
+        reads.append(entry)
+        _write("holdout_reads.json", reads)

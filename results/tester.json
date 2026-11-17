@@ -128,6 +128,46 @@
       "ok": true,
       "p_value": 0.004975124378109453,
       "strategy": "dual momentum"
+    },
+    {
+      "alpha": 0.01,
+      "data": "8 random walks",
+      "expected": "fail",
+      "gate": 2,
+      "gate_result": "fail",
+      "ok": true,
+      "p_value": 0.06693306693306693,
+      "strategy": "DTFM"
+    },
+    {
+      "alpha": 0.01,
+      "data": "8 random walks",
+      "expected": "fail",
+      "gate": 4,
+      "gate_result": "fail",
+      "ok": true,
+      "p_value": 0.8208955223880597,
+      "strategy": "DTFM"
+    },
+    {
+      "alpha": 0.01,
+      "data": "8 planted trends",
+      "expected": "pass",
+      "gate": 2,
+      "gate_result": "pass",
+      "ok": true,
+      "p_value": 0.000999000999000999,
+      "strategy": "DTFM"
+    },
+    {
+      "alpha": 0.01,
+      "data": "8 planted trends",
+      "expected": "pass",
+      "gate": 4,
+      "gate_result": "pass",
+      "ok": true,
+      "p_value": 0.004975124378109453,
+      "strategy": "DTFM"
     }
   ],
   "planted_edge_beats_buy_and_hold": {

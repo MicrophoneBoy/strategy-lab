@@ -1,0 +1,89 @@
+{
+  "died_at": [
+    "gate 1",
+    "gate 2"
+  ],
+  "gates": {
+    "1": {
+      "benchmark": {
+        "after_tax_cagr": 0.1586424325552589,
+        "after_tax_total_return": 0.801125397848883,
+        "bars": 1007,
+        "cagr": 0.18081975610421944,
+        "exposure": 1.0,
+        "long_term_trades": 1,
+        "max_drawdown": -0.0853684771157458,
+        "profit_factor": 1.312119122581708,
+        "sharpe": 1.62858028857941,
+        "short_term_trades": 0,
+        "tax_paid": 0.14137507020862639,
+        "total_return": 0.9428890458666828,
+        "trades": 1,
+        "years": 3.996031746031746
+      },
+      "best_params": {
+        "percentile": 90,
+        "window": 10
+      },
+      "first_bar": "1993-02-01",
+      "last_bar": "1997-01-23",
+      "passed": false,
+      "strategy": {
+        "after_tax_cagr": 0.11834751932464993,
+        "after_tax_total_return": 0.5635592745668665,
+        "bars": 1007,
+        "cagr": 0.14849994142503092,
+        "exposure": 0.6335650446871897,
+        "long_term_trades": 0,
+        "max_drawdown": -0.05714857227735681,
+        "profit_factor": 1.4196491726381995,
+        "sharpe": 1.6869084298774686,
+        "short_term_trades": 19,
+        "tax_paid": 0.14877041840053057,
+        "total_return": 0.7389427911325417,
+        "trades": 19,
+        "years": 3.996031746031746
+      },
+      "versus_benchmark": {
+        "beats_benchmark_after_costs": false,
+        "beats_benchmark_after_costs_and_taxes": false,
+        "excess_after_tax_cagr": -0.040294913230608964,
+        "excess_cagr": -0.03231981467918851,
+        "excess_total_return": -0.20394625473414107,
+        "sharpe_difference": 0.05832814129805852
+      }
+    },
+    "2": {
+      "alpha": 0.0014285714285714286,
+      "best_params": {
+        "percentile": 90,
+        "window": 10
+      },
+      "p_value": 0.21535692861427713,
+      "passed": false,
+      "permutations": 5000,
+      "permuted_95th": 0.6425307558834241,
+      "permuted_at_least_as_good": 1076,
+      "permuted_median": 0.4717478870592982,
+      "real_score": 0.5532773372649032
+    },
+    "3": {
+      "passed": null,
+      "status": "not run: the idea had already died"
+    },
+    "4": {
+      "passed": null,
+      "status": "not run: the idea had already died"
+    }
+  },
+  "idea": "volatility_filter",
+  "param_sets": 9,
+  "passed_all_gates": false,
+  "rationale": "Stormy markets tend to stay stormy, and those stretches have had poor returns for the risk taken. The loser is whoever must stay fully invested through them.",
+  "reason": "Even with the best parameters in hindsight, it did not beat buy-and-hold on the development window after costs and tax. Its in-sample result is no better than what the same optimisation finds on shuffled prices, so it looks like luck.",
+  "tested_on": "SPY",
+  "tests_so_far": {
+    "ideas": 7,
+    "param_sets": 134
+  }
+}

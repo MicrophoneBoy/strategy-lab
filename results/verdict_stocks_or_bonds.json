@@ -1,0 +1,87 @@
+{
+  "died_at": [
+    "gate 2"
+  ],
+  "gates": {
+    "1": {
+      "benchmark": {
+        "after_tax_cagr": 0.09419332687289139,
+        "after_tax_total_return": 0.4329172541004329,
+        "bars": 1007,
+        "cagr": 0.10856471924297756,
+        "exposure": 1.0,
+        "long_term_trades": 1,
+        "max_drawdown": -0.18855900728011543,
+        "profit_factor": 1.1231216157233246,
+        "sharpe": 0.7481092159161802,
+        "short_term_trades": 0,
+        "tax_paid": 0.0763971624883117,
+        "total_return": 0.5096163398567168,
+        "trades": 1,
+        "years": 3.996031746031746
+      },
+      "best_params": {
+        "lookback": 126
+      },
+      "first_bar": "2002-07-31",
+      "last_bar": "2006-07-28",
+      "passed": true,
+      "strategy": {
+        "after_tax_cagr": 0.09829962906056244,
+        "after_tax_total_return": 0.45452689857577155,
+        "bars": 1007,
+        "cagr": 0.11671974778341954,
+        "exposure": 0.8728897715988083,
+        "long_term_trades": 1,
+        "max_drawdown": -0.08871384989148179,
+        "profit_factor": 1.2069918049790558,
+        "sharpe": 1.1130633329213975,
+        "short_term_trades": 5,
+        "tax_paid": 0.0971269241120087,
+        "total_return": 0.5544849792654198,
+        "trades": 6,
+        "turnover_per_year": 2.7527308838133067,
+        "years": 3.996031746031746
+      },
+      "versus_benchmark": {
+        "beats_benchmark_after_costs": true,
+        "beats_benchmark_after_costs_and_taxes": true,
+        "excess_after_tax_cagr": 0.0041063021876710515,
+        "excess_cagr": 0.008155028540441978,
+        "excess_total_return": 0.044868639408703004,
+        "sharpe_difference": 0.3649541170052173
+      }
+    },
+    "2": {
+      "alpha": 0.0025,
+      "best_params": {
+        "lookback": 126
+      },
+      "p_value": 0.27854429114177165,
+      "passed": false,
+      "permutations": 5000,
+      "permuted_95th": 0.5975494198548131,
+      "permuted_at_least_as_good": 1392,
+      "permuted_median": 0.367737366590371,
+      "real_score": 0.4411442877266094
+    },
+    "3": {
+      "passed": null,
+      "status": "not run: the idea had already died"
+    },
+    "4": {
+      "passed": null,
+      "status": "not run: the idea had already died"
+    }
+  },
+  "idea": "stocks_or_bonds",
+  "param_sets": 4,
+  "passed_all_gates": false,
+  "rationale": "Big stock declines unfold over months, so a falling trend warns that more may follow, and bonds often rise then. The loser is the investor who holds stocks through the whole decline.",
+  "reason": "Its in-sample result is no better than what the same optimisation finds on shuffled prices, so it looks like luck.",
+  "tested_on": "SPY and IEF",
+  "tests_so_far": {
+    "ideas": 4,
+    "param_sets": 104
+  }
+}

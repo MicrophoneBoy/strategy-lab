@@ -1,0 +1,89 @@
+{
+  "died_at": [
+    "gate 1",
+    "gate 2"
+  ],
+  "gates": {
+    "1": {
+      "benchmark": {
+        "after_tax_cagr": 0.1586424325552589,
+        "after_tax_total_return": 0.801125397848883,
+        "bars": 1007,
+        "cagr": 0.18081975610421944,
+        "exposure": 1.0,
+        "long_term_trades": 1,
+        "max_drawdown": -0.0853684771157458,
+        "profit_factor": 1.312119122581708,
+        "sharpe": 1.62858028857941,
+        "short_term_trades": 0,
+        "tax_paid": 0.14137507020862639,
+        "total_return": 0.9428890458666828,
+        "trades": 1,
+        "years": 3.996031746031746
+      },
+      "best_params": {
+        "drop": 0.01,
+        "lookback": 5
+      },
+      "first_bar": "1993-02-01",
+      "last_bar": "1997-01-23",
+      "passed": false,
+      "strategy": {
+        "after_tax_cagr": 0.05762808988731116,
+        "after_tax_total_return": 0.25093674024992274,
+        "bars": 1007,
+        "cagr": 0.07455091104418955,
+        "exposure": 0.16385302879841113,
+        "long_term_trades": 0,
+        "max_drawdown": -0.05624154665136005,
+        "profit_factor": 1.740266286575982,
+        "sharpe": 1.3588181281623606,
+        "short_term_trades": 57,
+        "tax_paid": 0.0743898768988277,
+        "total_return": 0.33285857443051636,
+        "trades": 57,
+        "years": 3.996031746031746
+      },
+      "versus_benchmark": {
+        "beats_benchmark_after_costs": false,
+        "beats_benchmark_after_costs_and_taxes": false,
+        "excess_after_tax_cagr": -0.10101434266794773,
+        "excess_cagr": -0.10626884506002988,
+        "excess_total_return": -0.6100304714361664,
+        "sharpe_difference": -0.2697621604170495
+      }
+    },
+    "2": {
+      "alpha": 0.00125,
+      "best_params": {
+        "drop": 0.01,
+        "lookback": 5
+      },
+      "p_value": 0.016596680663867228,
+      "passed": false,
+      "permutations": 5000,
+      "permuted_95th": 0.2519349712662573,
+      "permuted_at_least_as_good": 82,
+      "permuted_median": 0.12907710073337084,
+      "real_score": 0.2873259398669867
+    },
+    "3": {
+      "passed": null,
+      "status": "not run: the idea had already died"
+    },
+    "4": {
+      "passed": null,
+      "status": "not run: the idea had already died"
+    }
+  },
+  "idea": "mean_reversion",
+  "param_sets": 12,
+  "passed_all_gates": false,
+  "rationale": "After a sharp drop, some sellers are forced or panicked, and prices tend to bounce once that selling is done. The loser is the panicked seller.",
+  "reason": "Even with the best parameters in hindsight, it did not beat buy-and-hold on the development window after costs and tax. Its in-sample result is no better than what the same optimisation finds on shuffled prices, so it looks like luck.",
+  "tested_on": "SPY",
+  "tests_so_far": {
+    "ideas": 8,
+    "param_sets": 146
+  }
+}

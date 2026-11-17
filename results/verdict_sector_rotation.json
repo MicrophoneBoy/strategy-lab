@@ -1,0 +1,89 @@
+{
+  "died_at": [
+    "gate 2"
+  ],
+  "gates": {
+    "1": {
+      "benchmark": {
+        "after_tax_cagr": -0.06087933658496658,
+        "after_tax_total_return": -0.22197449514119072,
+        "bars": 1007,
+        "cagr": -0.06083232804478846,
+        "exposure": 1.0,
+        "long_term_trades": 1,
+        "max_drawdown": -0.4751583644110624,
+        "profit_factor": 0.9558564470709872,
+        "sharpe": -0.16143679046194642,
+        "short_term_trades": 0,
+        "tax_paid": 0.0,
+        "total_return": -0.22181885891297304,
+        "trades": 1,
+        "years": 3.996031746031746
+      },
+      "best_params": {
+        "hold": 3,
+        "lookback": 126
+      },
+      "first_bar": "1998-12-23",
+      "last_bar": "2002-12-26",
+      "passed": true,
+      "strategy": {
+        "after_tax_cagr": -0.03390565402159795,
+        "after_tax_total_return": -0.12876039794016125,
+        "bars": 1007,
+        "cagr": -0.02898825968647587,
+        "exposure": 0.8709036742800397,
+        "long_term_trades": 0,
+        "max_drawdown": -0.34495503836465624,
+        "profit_factor": 0.972929581735996,
+        "sharpe": -0.05412147135662494,
+        "short_term_trades": 126,
+        "tax_paid": 0.025067426058495837,
+        "total_return": -0.11090407418563873,
+        "trades": 42,
+        "turnover_per_year": 5.932223469732893,
+        "years": 3.996031746031746
+      },
+      "versus_benchmark": {
+        "beats_benchmark_after_costs": true,
+        "beats_benchmark_after_costs_and_taxes": true,
+        "excess_after_tax_cagr": 0.02697368256336863,
+        "excess_cagr": 0.03184406835831259,
+        "excess_total_return": 0.1109147847273343,
+        "sharpe_difference": 0.10731531910532148
+      }
+    },
+    "2": {
+      "alpha": 0.0033333333333333335,
+      "best_params": {
+        "hold": 3,
+        "lookback": 126
+      },
+      "p_value": 0.861627674465107,
+      "passed": false,
+      "permutations": 5000,
+      "permuted_95th": 0.5279331551405306,
+      "permuted_at_least_as_good": 4308,
+      "permuted_median": 0.08348899232678608,
+      "real_score": -0.11755014623607346
+    },
+    "3": {
+      "passed": null,
+      "status": "not run: the idea had already died"
+    },
+    "4": {
+      "passed": null,
+      "status": "not run: the idea had already died"
+    }
+  },
+  "idea": "sector_rotation",
+  "param_sets": 9,
+  "passed_all_gates": false,
+  "rationale": "Investors are slow to move money toward sectors with improving news, so winners keep winning for some months. The loser is whoever sells a strong sector early or holds a weak one too long.",
+  "reason": "Its in-sample result is no better than what the same optimisation finds on shuffled prices, so it looks like luck.",
+  "tested_on": "9 sector ETFs",
+  "tests_so_far": {
+    "ideas": 3,
+    "param_sets": 100
+  }
+}

@@ -1,0 +1,89 @@
+{
+  "died_at": [
+    "gate 2"
+  ],
+  "gates": {
+    "1": {
+      "benchmark": {
+        "after_tax_cagr": -0.06087933658496658,
+        "after_tax_total_return": -0.22197449514119072,
+        "bars": 1007,
+        "cagr": -0.06083232804478846,
+        "exposure": 1.0,
+        "long_term_trades": 1,
+        "max_drawdown": -0.4751583644110624,
+        "profit_factor": 0.9558564470709872,
+        "sharpe": -0.16143679046194642,
+        "short_term_trades": 0,
+        "tax_paid": 0.0,
+        "total_return": -0.22181885891297304,
+        "trades": 1,
+        "years": 3.996031746031746
+      },
+      "best_params": {
+        "hold": 4,
+        "window": 120
+      },
+      "first_bar": "1998-12-23",
+      "last_bar": "2002-12-26",
+      "passed": true,
+      "strategy": {
+        "after_tax_cagr": -0.045053747197754235,
+        "after_tax_total_return": -0.16824549026388602,
+        "bars": 1007,
+        "cagr": -0.04329419829409613,
+        "exposure": 0.8709036742800397,
+        "long_term_trades": 57,
+        "max_drawdown": -0.35495822035438296,
+        "profit_factor": 0.9542645262779231,
+        "sharpe": -0.16887157156939278,
+        "short_term_trades": 111,
+        "tax_paid": 0.007585048935702101,
+        "total_return": -0.16210440599743686,
+        "trades": 42,
+        "turnover_per_year": 2.64162400712805,
+        "years": 3.996031746031746
+      },
+      "versus_benchmark": {
+        "beats_benchmark_after_costs": true,
+        "beats_benchmark_after_costs_and_taxes": true,
+        "excess_after_tax_cagr": 0.015825589387212347,
+        "excess_cagr": 0.017538129750692334,
+        "excess_total_return": 0.059714452915536176,
+        "sharpe_difference": -0.007434781107446359
+      }
+    },
+    "2": {
+      "alpha": 0.002,
+      "best_params": {
+        "hold": 4,
+        "window": 120
+      },
+      "p_value": 0.9858028394321136,
+      "passed": false,
+      "permutations": 5000,
+      "permuted_95th": 0.3809789535859931,
+      "permuted_at_least_as_good": 4929,
+      "permuted_median": 0.12412698957013035,
+      "real_score": -0.17686177575771805
+    },
+    "3": {
+      "passed": null,
+      "status": "not run: the idea had already died"
+    },
+    "4": {
+      "passed": null,
+      "status": "not run: the idea had already died"
+    }
+  },
+  "idea": "low_vol_sectors",
+  "param_sets": 9,
+  "passed_all_gates": false,
+  "rationale": "Many investors overpay for exciting, jumpy sectors hoping for big wins, which leaves calm sectors cheap for their risk. The loser is the lottery-ticket buyer.",
+  "reason": "Its in-sample result is no better than what the same optimisation finds on shuffled prices, so it looks like luck.",
+  "tested_on": "9 sector ETFs",
+  "tests_so_far": {
+    "ideas": 5,
+    "param_sets": 113
+  }
+}

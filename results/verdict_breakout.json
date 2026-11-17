@@ -1,0 +1,88 @@
+{
+  "died_at": [
+    "gate 2"
+  ],
+  "gates": {
+    "1": {
+      "benchmark": {
+        "after_tax_cagr": -0.09137629338357489,
+        "after_tax_total_return": -0.31813029216481525,
+        "bars": 1007,
+        "cagr": -0.09133081139634693,
+        "exposure": 1.0,
+        "long_term_trades": 1,
+        "max_drawdown": -0.4751583644110625,
+        "profit_factor": 0.933720457175959,
+        "sharpe": -0.3043887887935263,
+        "short_term_trades": 0,
+        "tax_paid": 0.0,
+        "total_return": -0.3179938909430047,
+        "trades": 1,
+        "years": 3.996031746031746
+      },
+      "best_params": {
+        "entry": 100,
+        "exit": 20
+      },
+      "first_bar": "1999-03-11",
+      "last_bar": "2003-03-13",
+      "passed": true,
+      "strategy": {
+        "after_tax_cagr": 0.029590215076588322,
+        "after_tax_total_return": 0.12358871973344376,
+        "bars": 1007,
+        "cagr": 0.04156425856936494,
+        "exposure": 0.15789473684210525,
+        "long_term_trades": 0,
+        "max_drawdown": -0.26757187846322195,
+        "profit_factor": 1.1012200199311748,
+        "sharpe": 0.3211397064670363,
+        "short_term_trades": 5,
+        "tax_paid": 0.05676392195652794,
+        "total_return": 0.17672259199961918,
+        "trades": 5,
+        "years": 3.996031746031746
+      },
+      "versus_benchmark": {
+        "beats_benchmark_after_costs": true,
+        "beats_benchmark_after_costs_and_taxes": true,
+        "excess_after_tax_cagr": 0.12096650846016321,
+        "excess_cagr": 0.13289506996571188,
+        "excess_total_return": 0.4947164829426238,
+        "sharpe_difference": 0.6255284952605626
+      }
+    },
+    "2": {
+      "alpha": 0.0011111111111111111,
+      "best_params": {
+        "entry": 100,
+        "exit": 20
+      },
+      "p_value": 0.3687262547490502,
+      "passed": false,
+      "permutations": 5000,
+      "permuted_95th": 0.615760046494166,
+      "permuted_at_least_as_good": 1843,
+      "permuted_median": 0.06976515749117504,
+      "real_score": 0.16273310975922142
+    },
+    "3": {
+      "passed": null,
+      "status": "not run: the idea had already died"
+    },
+    "4": {
+      "passed": null,
+      "status": "not run: the idea had already died"
+    }
+  },
+  "idea": "breakout",
+  "param_sets": 8,
+  "passed_all_gates": false,
+  "rationale": "People anchor on old highs and sell there, so a price that pushes through has absorbed that selling and often keeps going. The loser is whoever sold at the old high.",
+  "reason": "Its in-sample result is no better than what the same optimisation finds on shuffled prices, so it looks like luck.",
+  "tested_on": "QQQ",
+  "tests_so_far": {
+    "ideas": 9,
+    "param_sets": 154
+  }
+}

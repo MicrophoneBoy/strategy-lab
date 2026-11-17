@@ -10,5 +10,47 @@
     "grid_hash": "14668d954d62",
     "idea": "dtfm",
     "param_sets": 1
+  },
+  {
+    "data": "9 sector ETFs",
+    "grid_hash": "d507c2f4d364",
+    "idea": "sector_rotation",
+    "param_sets": 9
+  },
+  {
+    "data": "SPY and IEF",
+    "grid_hash": "8b27b437b063",
+    "idea": "stocks_or_bonds",
+    "param_sets": 4
+  },
+  {
+    "data": "9 sector ETFs",
+    "grid_hash": "c0490862bcdb",
+    "idea": "low_vol_sectors",
+    "param_sets": 9
+  },
+  {
+    "data": "SPY",
+    "grid_hash": "5e65ca959e70",
+    "idea": "turn_of_month",
+    "param_sets": 12
+  },
+  {
+    "data": "SPY",
+    "grid_hash": "5cd14a735bc2",
+    "idea": "volatility_filter",
+    "param_sets": 9
+  },
+  {
+    "data": "SPY",
+    "grid_hash": "56874a600346",
+    "idea": "mean_reversion",
+    "param_sets": 12
+  },
+  {
+    "data": "QQQ",
+    "grid_hash": "0088841042af",
+    "idea": "breakout",
+    "param_sets": 8
   }
 ]

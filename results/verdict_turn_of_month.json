@@ -1,0 +1,89 @@
+{
+  "died_at": [
+    "gate 1",
+    "gate 2"
+  ],
+  "gates": {
+    "1": {
+      "benchmark": {
+        "after_tax_cagr": 0.1586424325552589,
+        "after_tax_total_return": 0.801125397848883,
+        "bars": 1007,
+        "cagr": 0.18081975610421944,
+        "exposure": 1.0,
+        "long_term_trades": 1,
+        "max_drawdown": -0.0853684771157458,
+        "profit_factor": 1.312119122581708,
+        "sharpe": 1.62858028857941,
+        "short_term_trades": 0,
+        "tax_paid": 0.14137507020862639,
+        "total_return": 0.9428890458666828,
+        "trades": 1,
+        "years": 3.996031746031746
+      },
+      "best_params": {
+        "first": 3,
+        "last": 3
+      },
+      "first_bar": "1993-02-01",
+      "last_bar": "1997-01-23",
+      "passed": false,
+      "strategy": {
+        "after_tax_cagr": 0.04614042864984658,
+        "after_tax_total_return": 0.19751842944864473,
+        "bars": 1007,
+        "cagr": 0.05857560877590947,
+        "exposure": 0.27805362462760674,
+        "long_term_trades": 0,
+        "max_drawdown": -0.0733134688593915,
+        "profit_factor": 1.3841479658264872,
+        "sharpe": 1.03494763117565,
+        "short_term_trades": 48,
+        "tax_paid": 0.05387641067410255,
+        "total_return": 0.2554211158609461,
+        "trades": 48,
+        "years": 3.996031746031746
+      },
+      "versus_benchmark": {
+        "beats_benchmark_after_costs": false,
+        "beats_benchmark_after_costs_and_taxes": false,
+        "excess_after_tax_cagr": -0.11250200390541232,
+        "excess_cagr": -0.12224414732830996,
+        "excess_total_return": -0.6874679300057367,
+        "sharpe_difference": -0.59363265740376
+      }
+    },
+    "2": {
+      "alpha": 0.0016666666666666668,
+      "best_params": {
+        "first": 3,
+        "last": 3
+      },
+      "p_value": 0.46590681863627276,
+      "passed": false,
+      "permutations": 5000,
+      "permuted_95th": 0.37587813226023514,
+      "permuted_at_least_as_good": 2329,
+      "permuted_median": 0.21888993850409133,
+      "real_score": 0.2274710667860827
+    },
+    "3": {
+      "passed": null,
+      "status": "not run: the idea had already died"
+    },
+    "4": {
+      "passed": null,
+      "status": "not run: the idea had already died"
+    }
+  },
+  "idea": "turn_of_month",
+  "param_sets": 12,
+  "passed_all_gates": false,
+  "rationale": "Paychecks and pension contributions hit the market around month end, which pushes prices up on those days. The loser is whoever sells into that predictable buying, or buys just after it.",
+  "reason": "Even with the best parameters in hindsight, it did not beat buy-and-hold on the development window after costs and tax. Its in-sample result is no better than what the same optimisation finds on shuffled prices, so it looks like luck.",
+  "tested_on": "SPY",
+  "tests_so_far": {
+    "ideas": 6,
+    "param_sets": 125
+  }
+}

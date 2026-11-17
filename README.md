@@ -7,9 +7,8 @@ verdict: does it have a real edge, or did it only look good by luck?
 SPY makes money most years. If nothing clears the bar, the answer is "buy the index fund", and
 that counts as a correct result.
 
-Status: work in progress. The engine, the 4 gates and the tester checks are built. Two ideas
-have been tested so far (an SMA crossover and a dual-timeframe momentum strategy), and both
-died. More ideas come next.
+Status: nine classic ideas have been through the gates. None survived. The table is in
+[`results/ideas.md`](results/ideas.md).
 
 ## How it works
 
@@ -64,7 +63,12 @@ Full output is in [`results/`](results). Headline numbers:
 | DTFM, gate 2 | p = 0.84: 843 of 1,000 shuffled histories did at least as well. **Dead at gate 2.** |
 | DTFM, real paper-trading run, 2026-07-17 to 2026-11-16 | -2.16%, against -0.04% for SPY with dividends |
 
-Ideas tested: 2. Parameter sets tested: 91. Survivors: 0.
+Ideas tested: 9. Parameter sets tested: 154. Survivors: 0. Every idea, with what happened in plain
+language, is in [`results/ideas.md`](results/ideas.md). No idea reached the walk-forward gates,
+so the walk-forward data and the locked holdout are both unspent.
+
+Ideas 1 and 2 were run with 1,000 in-sample shuffles. Ideas 3 to 9 were run with 5,000, and
+their rules, order and pass bars were fixed before the first of them ran.
 
 **DTFM** (dual-timeframe momentum) holds up to 3 assets whose 20-session and 60-session returns
 are both positive, 10% of the account each, reviewed weekly, with an 8% trailing stop. Its
@@ -86,11 +90,13 @@ Needs [uv](https://docs.astral.sh/uv/) and Python 3.12.
 ```bash
 uv sync
 uv run lab fetch      # download daily bars, cache them, lock the holdout
-uv run pytest         # 92 tests
+uv run pytest         # 118 tests
 uv run lab baseline   # baseline strategy and parameter sweep vs buy-and-hold SPY
 uv run lab tester     # test the tester (about 8 minutes)
 uv run lab gates      # run the SMA baseline through the gates
-uv run lab gates --idea dtfm   # run DTFM through the gates
+uv run lab gates --idea dtfm   # run any idea through the gates (see --help for the names)
+uv run lab add-data IEF        # the bond ETF that idea 4 needs
+uv run lab summary             # one table with every verdict
 ```
 
 `uv run lab paper-compare` rebuilds the paper-run comparison. It needs Alpaca paper keys, since
@@ -116,6 +122,7 @@ src/strategy_lab/
   metrics.py          total return, CAGR, Sharpe, max drawdown, profit factor, trades, exposure
   tax.py              the after-tax estimate
   strategies.py       strategy families (an idea plus its parameter grid)
+  ideas.py            ideas 3 to 9
   sweep.py            parameter sweep, heatmap, plateau-or-spike check
   permutation.py      bar shuffling and the in-sample permutation test
   walkforward.py      walk-forward and its permutation test

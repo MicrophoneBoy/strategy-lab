@@ -13,7 +13,7 @@ from __future__ import annotations
 import argparse
 import json
 
-from . import ledger, report
+from . import html_report, ledger, report
 from .config import Config, load_config
 from .data import (
     add_to_cache,
@@ -243,6 +243,47 @@ def cmd_summary(cfg: Config, args) -> None:
     print(text)
 
 
+def cmd_report(cfg: Config, args) -> None:
+    """Build results/report.html from the ledger, the result files and fresh sweeps.
+    The sweeps rerun only versions already counted, on the development window."""
+    verdicts, train, ideas, seen = ledger.verdicts(), cfg.validation.train_bars, [], set()
+    for test in ledger.test_order():
+        name = test["idea"]
+        if name in seen or name not in verdicts:
+            continue
+        seen.add(name)
+        family, data, benchmark, label, _ = load_idea(name, cfg)
+        table = sweep(family, data.slice(0, train), benchmark.slice(0, train), cfg.costs)
+        ideas.append(
+            {
+                "name": name,
+                "tested_on": label.replace(" development window", ""),
+                "verdict": verdicts[name],
+                "sweep": table.to_dict("records"),
+                "grid": family.grid,
+            }
+        )
+        print(f"  swept {name}")
+
+    def load(name: str):
+        path = report.results_dir() / name
+        return json.loads(path.read_text()) if path.exists() else None
+
+    meta = read_meta()
+    note = (
+        f"Daily bars from {meta['source']}, adjusted for splits and dividends, up to "
+        f"{meta['symbols'][cfg.benchmark]['dev_last']}. Costs: {cfg.costs.fee_bps:g} bps fee plus "
+        f"{cfg.costs.slippage_bps:g} bps slippage on whatever changes hands. Tax estimate: "
+        f"{cfg.tax.short_term:.0%} on gains held a year or less, {cfg.tax.long_term:.0%} on longer "
+        "holds. Cash earns 0. Trades happen at the close that produced the signal."
+    )
+    page = html_report.build(
+        ideas, ledger.counts(), load("tester.json"), load("dtfm_paper_comparison.json"), note
+    )
+    path = report.write_text("report.html", page)
+    print(f"wrote {path}")
+
+
 def cmd_paper_compare(cfg: Config, args) -> None:
     run = load_paper_run()
     result = compare_paper(run, spy_reference_prices(run["start_date"], run["end_date"]))
@@ -266,6 +307,7 @@ def main() -> None:
     add = sub.add_parser("add-data", help="download extra symbols into the existing cache")
     add.add_argument("symbols", nargs="+")
     sub.add_parser("summary", help="one table with every idea's verdict in plain language")
+    sub.add_parser("report", help="build results/report.html: every idea, sweep, gate and verdict")
     args = parser.parse_args()
     cfg = load_config()
     if read_lock() is None and args.command not in ("fetch", "check-alpaca"):
@@ -279,6 +321,7 @@ def main() -> None:
         "paper-compare": cmd_paper_compare,
         "add-data": cmd_add_data,
         "summary": cmd_summary,
+        "report": cmd_report,
     }[args.command](cfg, args)
 
 

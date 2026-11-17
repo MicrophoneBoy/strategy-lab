@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Strategy Lab report</title><style>
+:root { --bg:#fcfcfb; --panel:#f4f3f0; --ink:#0b0b0b; --ink2:#52514e; --muted:#898781; --line:#dedcd6;
+        --pos:#2a6cb5; --neg:#b3372e; --mid:#f0efec; --pass:#1f7a4d; --fail:#b3372e; }
+@media (prefers-color-scheme: dark) {
+  :root { --bg:#1a1a19; --panel:#242423; --ink:#f0efec; --ink2:#c3c2b7; --muted:#898781; --line:#3a3a37;
+          --pos:#4a8fd6; --neg:#d2564c; --mid:#383835; --pass:#5fbf8f; --fail:#e0776e; }
+}
+* { box-sizing: border-box; }
+body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.55 system-ui, "Segoe UI", sans-serif; }
+main { max-width: 980px; margin: 0 auto; padding: 32px 16px 64px; }
+h1 { font-size: 30px; margin: 0 0 4px; } h2 { font-size: 22px; margin: 44px 0 10px; }
+h3 { font-size: 16px; margin: 22px 0 8px; color: var(--ink2); }
+p { margin: 8px 0; } .lede { color: var(--ink2); max-width: 70ch; }
+.tiles { display:flex; flex-wrap:wrap; gap:12px; margin:20px 0; }
+.tile { background:var(--panel); border-radius:10px; padding:14px 18px; min-width:150px; }
+.tile b { display:block; font-size:28px; line-height:1.2; } .tile span { color:var(--ink2); font-size:14px; }
+.scroll { overflow-x:auto; } table { border-collapse:collapse; width:100%; font-size:14px; margin:8px 0; }
+th, td { padding:7px 10px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top; }
+th { color:var(--ink2); font-weight:600; } td.num, th.num { text-align:right; font-variant-numeric: tabular-nums; }
+.badge { display:inline-block; padding:1px 8px; border-radius:999px; font-size:13px; font-weight:600;
+         border:1px solid currentColor; white-space:nowrap; }
+.PASS { color:var(--pass); } .FAIL { color:var(--fail); } .none { color:var(--muted); }
+section.idea { border-top:1px solid var(--line); margin-top:36px; }
+.heat { width:auto; } .heat td, .heat th { text-align:center; border:2px solid var(--bg); padding:6px 9px;
+        font-variant-numeric: tabular-nums; }
+.heat td.cell { min-width:58px; }
+.heat td.up { background: color-mix(in srgb, var(--pos) calc(var(--v) * 100%), var(--mid)); }
+.heat td.down { background: color-mix(in srgb, var(--neg) calc(var(--v) * 100%), var(--mid)); }
+.heat td.strong { color:#fff; } .heat td.best { outline:2px solid var(--ink); outline-offset:-2px; font-weight:700; }
+.heat td.empty { background:transparent; }
+.note { color:var(--ink2); font-size:14px; } ol, ul { padding-left: 22px; } li { margin: 4px 0; }
+</style></head><body><main>
+<h1>Strategy Lab report</h1>
+<p class="lede">Does any simple, well-known trading idea beat buying and holding SPY, after costs and
+taxes, by more than luck? Nothing here beat simply holding SPY in a way that could be told apart from luck. The answer so far is: buy the index fund.</p>
+<div class="tiles">
+<div class="tile"><b>9</b><span>ideas tested</span></div>
+<div class="tile"><b>154</b><span>versions tried</span></div>
+<div class="tile"><b>0</b><span>survivors</span></div>
+</div>
+<h2>How an idea is judged</h2>
+<ol>
+<li><b>Beat SPY on the first 4 years.</b> The best version must earn more per year than buy-and-hold SPY, after costs and an estimated tax.</li>
+<li><b>Be better than luck.</b> The price history is shuffled thousands of times, which keeps every day's move but destroys any real pattern. The idea is re-optimised on each shuffled copy. If shuffled data does as well as real data, the result is luck.</li>
+<li><b>Beat SPY out of sample.</b> Pick settings on the past 4 years, trade the next month, roll forward.</li>
+<li><b>Be better than luck out of sample.</b> The shuffle test again, on the walk-forward run.</li>
+</ol>
+<p class="note">An idea is dead at the first gate it fails, and gates 3 and 4 only run for ideas that pass 1 and 2.
+Every idea tested makes a lucky survivor more likely, so the bar for the shuffle tests is 0.01 divided by the
+number of ideas tested so far. The most recent 12 months of data are locked away for a final exam that only a
+survivor may take.</p>
+<h2>All ideas at a glance</h2>
+<div class="scroll"><table><tr><th class="num">#</th><th>Idea</th><th>Tested on</th><th class="num">Versions</th>
+<th class="num">Best version vs SPY a year</th><th>Gate 1</th><th class="num">Shuffle p</th><th class="num">Needed below</th>
+<th>Gate 2</th><th>Verdict</th></tr><tr><td class="num">1</td><td><a href="#sma_crossover">Moving-average crossover</a></td><td>SPY</td><td class="num">90</td><td class="num">-1.94%</td><td><span class="badge FAIL">FAIL</span></td><td class="num">0.4635</td><td class="num">0.0100</td><td><span class="badge FAIL">FAIL</span></td><td>Dead at gate 1, gate 2</td></tr><tr><td class="num">2</td><td><a href="#dtfm">DTFM (dual-timeframe momentum)</a></td><td>QQQ plus 9 sector ETFs</td><td class="num">1</td><td class="num">+5.78%</td><td><span class="badge PASS">PASS</span></td><td class="num">0.8432</td><td class="num">0.0050</td><td><span class="badge FAIL">FAIL</span></td><td>Dead at gate 2</td></tr><tr><td class="num">3</td><td><a href="#sector_rotation">Sector momentum rotation</a></td><td>9 sector ETFs</td><td class="num">9</td><td class="num">+3.18%</td><td><span class="badge PASS">PASS</span></td><td class="num">0.8616</td><td class="num">0.0033</td><td><span class="badge FAIL">FAIL</span></td><td>Dead at gate 2</td></tr><tr><td class="num">4</td><td><a href="#stocks_or_bonds">Stocks or bonds by momentum</a></td><td>SPY and IEF</td><td class="num">4</td><td class="num">+0.82%</td><td><span class="badge PASS">PASS</span></td><td class="num">0.2785</td><td class="num">0.0025</td><td><span class="badge FAIL">FAIL</span></td><td>Dead at gate 2</td></tr><tr><td class="num">5</td><td><a href="#low_vol_sectors">Low-volatility sectors</a></td><td>9 sector ETFs</td><td class="num">9</td><td class="num">+1.75%</td><td><span class="badge PASS">PASS</span></td><td class="num">0.9858</td><td class="num">0.0020</td><td><span class="badge FAIL">FAIL</span></td><td>Dead at gate 2</td></tr><tr><td class="num">6</td><td><a href="#turn_of_month">Turn of the month</a></td><td>SPY</td><td class="num">12</td><td class="num">-12.22%</td><td><span class="badge FAIL">FAIL</span></td><td class="num">0.4659</td><td class="num">0.0017</td><td><span class="badge FAIL">FAIL</span></td><td>Dead at gate 1, gate 2</td></tr><tr><td class="num">7</td><td><a href="#volatility_filter">Volatility filter</a></td><td>SPY</td><td class="num">9</td><td class="num">-3.23%</td><td><span class="badge FAIL">FAIL</span></td><td class="num">0.2154</td><td class="num">0.0014</td><td><span class="badge FAIL">FAIL</span></td><td>Dead at gate 1, gate 2</td></tr><tr><td class="num">8</td><td><a href="#mean_reversion">Short-term mean reversion</a></td><td>SPY</td><td class="num">12</td><td class="num">-10.63%</td><td><span class="badge FAIL">FAIL</span></td><td class="num">0.0166</td><td class="num">0.0013</td><td><span class="badge FAIL">FAIL</span></td><td>Dead at gate 1, gate 2</td></tr><tr><td class="num">9</td><td><a href="#breakout">Breakout</a></td><td>QQQ</td><td class="num">8</td><td class="num">+13.29%</td><td><span class="badge PASS">PASS</span></td><td class="num">0.3687</td><td class="num">0.0011</td><td><span class="badge FAIL">FAIL</span></td><td>Dead at gate 2</td></tr></table></div>
+
+<section class="idea" id="sma_crossover">
+<h2>1. Moving-average crossover</h2>
+<p><b>Dead at gate 1, gate 2.</b> In its first 4 years (1993 to 1997) the best version trailed SPY by 1.94% a year. 463 of 1,000 shuffled price histories did at least as well (p = 0.4635, needed below 0.0100), so even that result looks like luck.</p>
+<p class="note"><b>Rule:</b> Hold SPY while its fast moving average is above its slow one, otherwise hold cash.<br>
+<b>Why it might work, and who loses:</b> Trend following: prices that have been rising keep rising for a while because investors react slowly to news. The loser is whoever sells early in a trend.<br>
+<b>Tested on:</b> SPY, first 4 years 1993-02-01 to 1997-01-23.
+<b>Versions tried:</b> 90. <b>Best version:</b> fast 35, slow 60.</p>
+<h3>Gates</h3>
+<div class="scroll"><table><tr><th>Gate</th><th>Result</th><th>Key number</th></tr><tr><td>1. Beat SPY on the first 4 years</td><td><span class="badge FAIL">FAIL</span></td><td>-1.94% a year after costs, -2.19% after tax</td></tr><tr><td>2. Better than luck (shuffle test)</td><td><span class="badge FAIL">FAIL</span></td><td>463 of 1,000 shuffled histories did at least as well: p = 0.4635, needed below 0.0100</td></tr><tr><td>3. Beat SPY out of sample (walk-forward)</td><td><span class="badge none">not run</span></td><td>not run, data left unspent</td></tr><tr><td>4. Better than luck out of sample</td><td><span class="badge none">not run</span></td><td>not run</td></tr></table></div>
+<h3>Every version tried</h3>
+<p class="note">Return per year minus buy-and-hold SPY, in percentage points, after costs, on the first 4 years. Blue beats SPY, red trails it. The outlined cell is the best version.</p><div class="scroll"><table class="heat"><tr><th>slow \ fast</th><th>5</th><th>10</th><th>15</th><th>20</th><th>25</th><th>30</th><th>35</th><th>40</th><th>45</th><th>50</th></tr><tr><th>20</th><td class="cell down strong" style="--v:1.000">-13.1</td><td class="cell down strong" style="--v:0.648">-8.5</td><td class="cell down strong" style="--v:0.681">-8.9</td><td class="empty"></td><td class="empty"></td><td class="empty"></td><td class="empty"></td><td class="empty"></td><td class="empty"></td><td class="empty"></td></tr><tr><th>40</th><td class="cell down strong" style="--v:0.819">-10.7</td><td class="cell down" style="--v:0.307">-4.0</td><td class="cell down" style="--v:0.406">-5.3</td><td class="cell down" style="--v:0.416">-5.4</td><td class="cell down" style="--v:0.557">-7.3</td><td class="cell down" style="--v:0.496">-6.5</td><td class="cell down" style="--v:0.375">-4.9</td><td class="empty"></td><td class="empty"></td><td class="empty"></td></tr><tr><th>60</th><td class="cell down" style="--v:0.466">-6.1</td><td class="cell down" style="--v:0.424">-5.5</td><td class="cell down" style="--v:0.354">-4.6</td><td class="cell down" style="--v:0.322">-4.2</td><td class="cell down" style="--v:0.289">-3.8</td><td class="cell down" style="--v:0.254">-3.3</td><td class="cell down best" style="--v:0.149">-1.9</td><td class="cell down" style="--v:0.263">-3.4</td><td class="cell down" style="--v:0.353">-4.6</td><td class="cell down" style="--v:0.305">-4.0</td></tr><tr><th>80</th><td class="cell down" style="--v:0.398">-5.2</td><td class="cell down" style="--v:0.333">-4.3</td><td class="cell down" style="--v:0.247">-3.2</td><td class="cell down" style="--v:0.242">-3.2</td><td class="cell down" style="--v:0.290">-3.8</td><td class="cell down" style="--v:0.231">-3.0</td><td class="cell down" style="--v:0.276">-3.6</td><td class="cell down" style="--v:0.249">-3.3</td><td class="cell down" style="--v:0.294">-3.8</td><td class="cell down" style="--v:0.311">-4.1</td></tr><tr><th>100</th><td class="cell down" style="--v:0.374">-4.9</td><td class="cell down" style="--v:0.341">-4.5</td><td class="cell down" style="--v:0.290">-3.8</td><td class="cell down" style="--v:0.437">-5.7</td><td class="cell down" style="--v:0.358">-4.7</td><td class="cell down" style="--v:0.359">-4.7</td><td class="cell down" style="--v:0.270">-3.5</td><td class="cell down" style="--v:0.317">-4.1</td><td class="cell down" style="--v:0.260">-3.4</td><td class="cell down" style="--v:0.357">-4.7</td></tr><tr><th>120</th><td class="cell down" style="--v:0.347">-4.5</td><td class="cell down" style="--v:0.354">-4.6</td><td class="cell down" style="--v:0.340">-4.4</td><td class="cell down" style="--v:0.370">-4.8</td><td class="cell down" style="--v:0.376">-4.9</td><td class="cell down" style="--v:0.330">-4.3</td><td class="cell down" style="--v:0.196">-2.6</td><td class="cell down" style="--v:0.247">-3.2</td><td class="cell down" style="--v:0.377">-4.9</td><td class="cell down" style="--v:0.372">-4.9</td></tr><tr><th>140</th><td class="cell down" style="--v:0.401">-5.2</td><td class="cell down" style="--v:0.399">-5.2</td><td class="cell down" style="--v:0.388">-5.1</td><td class="cell down" style="--v:0.439">-5.7</td><td class="cell down" style="--v:0.350">-4.6</td><td class="cell down" style="--v:0.303">-4.0</td><td class="cell down" style="--v:0.208">-2.7</td><td class="cell down" style="--v:0.276">-3.6</td><td class="cell down" style="--v:0.294">-3.8</td><td class="cell down" style="--v:0.286">-3.7</td></tr><tr><th>160</th><td class="cell down" style="--v:0.402">-5.2</td><td class="cell down" style="--v:0.432">-5.6</td><td class="cell down" style="--v:0.491">-6.4</td><td class="cell down" style="--v:0.320">-4.2</td><td class="cell down" style="--v:0.255">-3.3</td><td class="cell down" style="--v:0.227">-3.0</td><td class="cell down" style="--v:0.273">-3.6</td><td class="cell down" style="--v:0.303">-4.0</td><td class="cell down" style="--v:0.306">-4.0</td><td class="cell down" style="--v:0.312">-4.1</td></tr><tr><th>180</th><td class="cell down" style="--v:0.479">-6.3</td><td class="cell down" style="--v:0.509">-6.7</td><td class="cell down" style="--v:0.461">-6.0</td><td class="cell down" style="--v:0.301">-3.9</td><td class="cell down" style="--v:0.283">-3.7</td><td class="cell down" style="--v:0.287">-3.7</td><td class="cell down" style="--v:0.320">-4.2</td><td class="cell down" style="--v:0.359">-4.7</td><td class="cell down" style="--v:0.363">-4.7</td><td class="cell down" style="--v:0.314">-4.1</td></tr><tr><th>200</th><td class="cell down" style="--v:0.381">-5.0</td><td class="cell down" style="--v:0.342">-4.5</td><td class="cell down" style="--v:0.408">-5.3</td><td class="cell down" style="--v:0.365">-4.8</td><td class="cell down" style="--v:0.276">-3.6</td><td class="cell down" style="--v:0.280">-3.7</td><td class="cell down" style="--v:0.311">-4.1</td><td class="cell down" style="--v:0.309">-4.0</td><td class="cell down" style="--v:0.295">-3.9</td><td class="cell down" style="--v:0.291">-3.8</td></tr></table></div>
+<h3>Best version against SPY, first 4 years</h3>
+<div class="scroll"><table><tr><th>Metric</th><th class="num">Moving-average crossover, best version</th><th class="num">Buy-and-hold SPY</th></tr><tr><td>Total return</td><td class="num">81.82%</td><td class="num">94.29%</td></tr><tr><td>CAGR (return per year)</td><td class="num">16.14%</td><td class="num">18.08%</td></tr><tr><td>Sharpe ratio</td><td class="num">1.72</td><td class="num">1.63</td></tr><tr><td>Max drawdown</td><td class="num">-7.63%</td><td class="num">-8.54%</td></tr><tr><td>Profit factor</td><td class="num">1.39</td><td class="num">1.31</td></tr><tr><td>Trades</td><td class="num">8</td><td class="num">1</td></tr><tr><td>Exposure (share of days invested)</td><td class="num">75.77%</td><td class="num">100.00%</td></tr><tr><td>After-tax total return</td><td class="num">66.90%</td><td class="num">80.11%</td></tr><tr><td>After-tax CAGR</td><td class="num">13.68%</td><td class="num">15.86%</td></tr></table></div>
+<h3>Shuffle test detail</h3>
+<p class="note">Total log return of the best version on the real prices: 0.5979.
+On shuffled prices, re-optimised each time: median 0.5916,
+95th percentile 0.7150. A real edge should sit far above the 95th percentile.</p>
+</section>
+<section class="idea" id="dtfm">
+<h2>2. DTFM (dual-timeframe momentum)</h2>
+<p><b>Dead at gate 2.</b> In its first 4 years (1999 to 2003) the best version beat SPY by 5.78% a year, but 843 of 1,000 shuffled price histories did at least as well (p = 0.8432, needed below 0.0050), so that looks like luck.</p>
+<p class="note"><b>Rule:</b> Hold up to 3 assets whose 20-session and 60-session returns are both positive, 10% of the account each, reviewed weekly, with an 8% trailing stop. Rules fixed in advance.<br>
+<b>Why it might work, and who loses:</b> Dual-timeframe momentum: assets rising over both 20 and 60 sessions tend to keep rising, as investors are slow to price in good news, and a trailing stop cuts losers. The loser is whoever sells a winner early.<br>
+<b>Tested on:</b> QQQ plus 9 sector ETFs, first 4 years 1999-03-11 to 2003-03-13.
+<b>Versions tried:</b> 1. <b>Best version:</b> buy_weight 0.1, fast 20, max_weight 0.15, slots 3, slow 60, stop 0.08.</p>
+<h3>Gates</h3>
+<div class="scroll"><table><tr><th>Gate</th><th>Result</th><th>Key number</th></tr><tr><td>1. Beat SPY on the first 4 years</td><td><span class="badge PASS">PASS</span></td><td>+5.78% a year after costs, +5.79% after tax</td></tr><tr><td>2. Better than luck (shuffle test)</td><td><span class="badge FAIL">FAIL</span></td><td>843 of 1,000 shuffled histories did at least as well: p = 0.8432, needed below 0.0050</td></tr><tr><td>3. Beat SPY out of sample (walk-forward)</td><td><span class="badge none">not run</span></td><td>not run, data left unspent</td></tr><tr><td>4. Better than luck out of sample</td><td><span class="badge none">not run</span></td><td>not run</td></tr></table></div>
+<h3>Every version tried</h3>
+<p class="note">Return per year minus buy-and-hold SPY, in percentage points, after costs, on the first 4 years. Blue beats SPY, red trails it. The outlined cell is the best version.</p><table class="heat"><tr><td class="cell up strong best" style="--v:1.000">+5.8</td></tr></table>
+<h3>Best version against SPY, first 4 years</h3>
+<div class="scroll"><table><tr><th>Metric</th><th class="num">DTFM (dual-timeframe momentum), best version</th><th class="num">Buy-and-hold SPY</th></tr><tr><td>Total return</td><td class="num">-12.73%</td><td class="num">-31.80%</td></tr><tr><td>CAGR (return per year)</td><td class="num">-3.35%</td><td class="num">-9.13%</td></tr><tr><td>Sharpe ratio</td><td class="num">-0.64</td><td class="num">-0.30</td></tr><tr><td>Max drawdown</td><td class="num">-16.59%</td><td class="num">-47.52%</td></tr><tr><td>Profit factor</td><td class="num">0.87</td><td class="num">0.93</td></tr><tr><td>Trades</td><td class="num">117</td><td class="num">1</td></tr><tr><td>Exposure (share of days invested)</td><td class="num">19.31%</td><td class="num">100.00%</td></tr><tr><td>After-tax total return</td><td class="num">-12.73%</td><td class="num">-31.81%</td></tr><tr><td>After-tax CAGR</td><td class="num">-3.35%</td><td class="num">-9.14%</td></tr></table></div>
+<h3>Shuffle test detail</h3>
+<p class="note">Total log return of the best version on the real prices: -0.1361.
+On shuffled prices, re-optimised each time: median -0.0565,
+95th percentile 0.0710. A real edge should sit far above the 95th percentile.</p>
+</section>
+<section class="idea" id="sector_rotation">
+<h2>3. Sector momentum rotation</h2>
+<p><b>Dead at gate 2.</b> In its first 4 years (1998 to 2002) the best version beat SPY by 3.18% a year, but 4,308 of 5,000 shuffled price histories did at least as well (p = 0.8616, needed below 0.0033), so that looks like luck.</p>
+<p class="note"><b>Rule:</b> Each month end, hold the top sectors by trailing return, equal weight, fully invested.<br>
+<b>Why it might work, and who loses:</b> Investors are slow to move money toward sectors with improving news, so winners keep winning for some months. The loser is whoever sells a strong sector early or holds a weak one too long.<br>
+<b>Tested on:</b> 9 sector ETFs, first 4 years 1998-12-23 to 2002-12-26.
+<b>Versions tried:</b> 9. <b>Best version:</b> hold 3, lookback 126.</p>
+<h3>Gates</h3>
+<div class="scroll"><table><tr><th>Gate</th><th>Result</th><th>Key number</th></tr><tr><td>1. Beat SPY on the first 4 years</td><td><span class="badge PASS">PASS</span></td><td>+3.18% a year after costs, +2.70% after tax</td></tr><tr><td>2. Better than luck (shuffle test)</td><td><span class="badge FAIL">FAIL</span></td><td>4,308 of 5,000 shuffled histories did at least as well: p = 0.8616, needed below 0.0033</td></tr><tr><td>3. Beat SPY out of sample (walk-forward)</td><td><span class="badge none">not run</span></td><td>not run, data left unspent</td></tr><tr><td>4. Better than luck out of sample</td><td><span class="badge none">not run</span></td><td>not run</td></tr></table></div>
+<h3>Every version tried</h3>
+<p class="note">Return per year minus buy-and-hold SPY, in percentage points, after costs, on the first 4 years. Blue beats SPY, red trails it. The outlined cell is the best version.</p><div class="scroll"><table class="heat"><tr><th>hold \ lookback</th><th>63</th><th>126</th><th>252</th></tr><tr><th>1</th><td class="cell up" style="--v:0.133">+0.7</td><td class="cell up" style="--v:0.433">+2.2</td><td class="cell down strong" style="--v:1.000">-5.0</td></tr><tr><th>3</th><td class="cell down" style="--v:0.445">-2.2</td><td class="cell up strong best" style="--v:0.637">+3.2</td><td class="cell down" style="--v:0.170">-0.9</td></tr><tr><th>5</th><td class="cell up" style="--v:0.331">+1.7</td><td class="cell up" style="--v:0.383">+1.9</td><td class="cell up" style="--v:0.151">+0.8</td></tr></table></div>
+<h3>Best version against SPY, first 4 years</h3>
+<div class="scroll"><table><tr><th>Metric</th><th class="num">Sector momentum rotation, best version</th><th class="num">Buy-and-hold SPY</th></tr><tr><td>Total return</td><td class="num">-11.09%</td><td class="num">-22.18%</td></tr><tr><td>CAGR (return per year)</td><td class="num">-2.90%</td><td class="num">-6.08%</td></tr><tr><td>Sharpe ratio</td><td class="num">-0.05</td><td class="num">-0.16</td></tr><tr><td>Max drawdown</td><td class="num">-34.50%</td><td class="num">-47.52%</td></tr><tr><td>Profit factor</td><td class="num">0.97</td><td class="num">0.96</td></tr><tr><td>Trades</td><td class="num">42</td><td class="num">1</td></tr><tr><td>Exposure (share of days invested)</td><td class="num">87.09%</td><td class="num">100.00%</td></tr><tr><td>After-tax total return</td><td class="num">-12.88%</td><td class="num">-22.20%</td></tr><tr><td>After-tax CAGR</td><td class="num">-3.39%</td><td class="num">-6.09%</td></tr></table></div>
+<h3>Shuffle test detail</h3>
+<p class="note">Total log return of the best version on the real prices: -0.1176.
+On shuffled prices, re-optimised each time: median 0.0835,
+95th percentile 0.5279. A real edge should sit far above the 95th percentile.</p>
+</section>
+<section class="idea" id="stocks_or_bonds">
+<h2>4. Stocks or bonds by momentum</h2>
+<p><b>Dead at gate 2.</b> In its first 4 years (2002 to 2006) the best version beat SPY by 0.82% a year, but 1,392 of 5,000 shuffled price histories did at least as well (p = 0.2785, needed below 0.0025), so that looks like luck.</p>
+<p class="note"><b>Rule:</b> Each month end, hold SPY if its trailing return is positive, otherwise the bond ETF IEF.<br>
+<b>Why it might work, and who loses:</b> Big stock declines unfold over months, so a falling trend warns that more may follow, and bonds often rise then. The loser is the investor who holds stocks through the whole decline.<br>
+<b>Tested on:</b> SPY and IEF, first 4 years 2002-07-31 to 2006-07-28.
+<b>Versions tried:</b> 4. <b>Best version:</b> lookback 126.</p>
+<h3>Gates</h3>
+<div class="scroll"><table><tr><th>Gate</th><th>Result</th><th>Key number</th></tr><tr><td>1. Beat SPY on the first 4 years</td><td><span class="badge PASS">PASS</span></td><td>+0.82% a year after costs, +0.41% after tax</td></tr><tr><td>2. Better than luck (shuffle test)</td><td><span class="badge FAIL">FAIL</span></td><td>1,392 of 5,000 shuffled histories did at least as well: p = 0.2785, needed below 0.0025</td></tr><tr><td>3. Beat SPY out of sample (walk-forward)</td><td><span class="badge none">not run</span></td><td>not run, data left unspent</td></tr><tr><td>4. Better than luck out of sample</td><td><span class="badge none">not run</span></td><td>not run</td></tr></table></div>
+<h3>Every version tried</h3>
+<p class="note">Return per year minus buy-and-hold SPY, in percentage points, after costs, on the first 4 years. Blue beats SPY, red trails it. The outlined cell is the best version.</p><div class="scroll"><table class="heat"><tr><th>lookback</th><th>63</th><th>126</th><th>189</th><th>252</th></tr><tr><th>vs SPY</th><td class="cell down" style="--v:0.426">-1.2</td><td class="cell up best" style="--v:0.281">+0.8</td><td class="cell down" style="--v:0.229">-0.7</td><td class="cell down strong" style="--v:1.000">-2.9</td></tr></table></div>
+<h3>Best version against SPY, first 4 years</h3>
+<div class="scroll"><table><tr><th>Metric</th><th class="num">Stocks or bonds by momentum, best version</th><th class="num">Buy-and-hold SPY</th></tr><tr><td>Total return</td><td class="num">55.45%</td><td class="num">50.96%</td></tr><tr><td>CAGR (return per year)</td><td class="num">11.67%</td><td class="num">10.86%</td></tr><tr><td>Sharpe ratio</td><td class="num">1.11</td><td class="num">0.75</td></tr><tr><td>Max drawdown</td><td class="num">-8.87%</td><td class="num">-18.86%</td></tr><tr><td>Profit factor</td><td class="num">1.21</td><td class="num">1.12</td></tr><tr><td>Trades</td><td class="num">6</td><td class="num">1</td></tr><tr><td>Exposure (share of days invested)</td><td class="num">87.29%</td><td class="num">100.00%</td></tr><tr><td>After-tax total return</td><td class="num">45.45%</td><td class="num">43.29%</td></tr><tr><td>After-tax CAGR</td><td class="num">9.83%</td><td class="num">9.42%</td></tr></table></div>
+<h3>Shuffle test detail</h3>
+<p class="note">Total log return of the best version on the real prices: 0.4411.
+On shuffled prices, re-optimised each time: median 0.3677,
+95th percentile 0.5975. A real edge should sit far above the 95th percentile.</p>
+</section>
+<section class="idea" id="low_vol_sectors">
+<h2>5. Low-volatility sectors</h2>
+<p><b>Dead at gate 2.</b> In its first 4 years (1998 to 2002) the best version beat SPY by 1.75% a year, but 4,929 of 5,000 shuffled price histories did at least as well (p = 0.9858, needed below 0.0020), so that looks like luck.</p>
+<p class="note"><b>Rule:</b> Each month end, hold the calmest sectors (lowest recent volatility), equal weight.<br>
+<b>Why it might work, and who loses:</b> Many investors overpay for exciting, jumpy sectors hoping for big wins, which leaves calm sectors cheap for their risk. The loser is the lottery-ticket buyer.<br>
+<b>Tested on:</b> 9 sector ETFs, first 4 years 1998-12-23 to 2002-12-26.
+<b>Versions tried:</b> 9. <b>Best version:</b> hold 4, window 120.</p>
+<h3>Gates</h3>
+<div class="scroll"><table><tr><th>Gate</th><th>Result</th><th>Key number</th></tr><tr><td>1. Beat SPY on the first 4 years</td><td><span class="badge PASS">PASS</span></td><td>+1.75% a year after costs, +1.58% after tax</td></tr><tr><td>2. Better than luck (shuffle test)</td><td><span class="badge FAIL">FAIL</span></td><td>4,929 of 5,000 shuffled histories did at least as well: p = 0.9858, needed below 0.0020</td></tr><tr><td>3. Beat SPY out of sample (walk-forward)</td><td><span class="badge none">not run</span></td><td>not run, data left unspent</td></tr><tr><td>4. Better than luck out of sample</td><td><span class="badge none">not run</span></td><td>not run</td></tr></table></div>
+<h3>Every version tried</h3>
+<p class="note">Return per year minus buy-and-hold SPY, in percentage points, after costs, on the first 4 years. Blue beats SPY, red trails it. The outlined cell is the best version.</p><div class="scroll"><table class="heat"><tr><th>hold \ window</th><th>60</th><th>120</th><th>250</th></tr><tr><th>2</th><td class="cell down strong" style="--v:1.000">-3.2</td><td class="cell down strong" style="--v:0.701">-2.2</td><td class="cell up" style="--v:0.260">+0.8</td></tr><tr><th>3</th><td class="cell down strong" style="--v:0.785">-2.5</td><td class="cell down" style="--v:0.491">-1.6</td><td class="cell down" style="--v:0.070">-0.2</td></tr><tr><th>4</th><td class="cell up" style="--v:0.248">+0.8</td><td class="cell up best" style="--v:0.550">+1.8</td><td class="cell up" style="--v:0.374">+1.2</td></tr></table></div>
+<h3>Best version against SPY, first 4 years</h3>
+<div class="scroll"><table><tr><th>Metric</th><th class="num">Low-volatility sectors, best version</th><th class="num">Buy-and-hold SPY</th></tr><tr><td>Total return</td><td class="num">-16.21%</td><td class="num">-22.18%</td></tr><tr><td>CAGR (return per year)</td><td class="num">-4.33%</td><td class="num">-6.08%</td></tr><tr><td>Sharpe ratio</td><td class="num">-0.17</td><td class="num">-0.16</td></tr><tr><td>Max drawdown</td><td class="num">-35.50%</td><td class="num">-47.52%</td></tr><tr><td>Profit factor</td><td class="num">0.95</td><td class="num">0.96</td></tr><tr><td>Trades</td><td class="num">42</td><td class="num">1</td></tr><tr><td>Exposure (share of days invested)</td><td class="num">87.09%</td><td class="num">100.00%</td></tr><tr><td>After-tax total return</td><td class="num">-16.82%</td><td class="num">-22.20%</td></tr><tr><td>After-tax CAGR</td><td class="num">-4.51%</td><td class="num">-6.09%</td></tr></table></div>
+<h3>Shuffle test detail</h3>
+<p class="note">Total log return of the best version on the real prices: -0.1769.
+On shuffled prices, re-optimised each time: median 0.1241,
+95th percentile 0.3810. A real edge should sit far above the 95th percentile.</p>
+</section>
+<section class="idea" id="turn_of_month">
+<h2>6. Turn of the month</h2>
+<p><b>Dead at gate 1, gate 2.</b> In its first 4 years (1993 to 1997) the best version trailed SPY by 12.22% a year. 2,329 of 5,000 shuffled price histories did at least as well (p = 0.4659, needed below 0.0017), so even that result looks like luck.</p>
+<p class="note"><b>Rule:</b> Hold SPY only for the last few business days of a month and the first few of the next.<br>
+<b>Why it might work, and who loses:</b> Paychecks and pension contributions hit the market around month end, which pushes prices up on those days. The loser is whoever sells into that predictable buying, or buys just after it.<br>
+<b>Tested on:</b> SPY, first 4 years 1993-02-01 to 1997-01-23.
+<b>Versions tried:</b> 12. <b>Best version:</b> first 3, last 3.</p>
+<h3>Gates</h3>
+<div class="scroll"><table><tr><th>Gate</th><th>Result</th><th>Key number</th></tr><tr><td>1. Beat SPY on the first 4 years</td><td><span class="badge FAIL">FAIL</span></td><td>-12.22% a year after costs, -11.25% after tax</td></tr><tr><td>2. Better than luck (shuffle test)</td><td><span class="badge FAIL">FAIL</span></td><td>2,329 of 5,000 shuffled histories did at least as well: p = 0.4659, needed below 0.0017</td></tr><tr><td>3. Beat SPY out of sample (walk-forward)</td><td><span class="badge none">not run</span></td><td>not run, data left unspent</td></tr><tr><td>4. Better than luck out of sample</td><td><span class="badge none">not run</span></td><td>not run</td></tr></table></div>
+<h3>Every version tried</h3>
+<p class="note">Return per year minus buy-and-hold SPY, in percentage points, after costs, on the first 4 years. Blue beats SPY, red trails it. The outlined cell is the best version.</p><div class="scroll"><table class="heat"><tr><th>first \ last</th><th>1</th><th>2</th><th>3</th></tr><tr><th>1</th><td class="cell down strong" style="--v:1.000">-16.9</td><td class="cell down strong" style="--v:0.971">-16.4</td><td class="cell down strong" style="--v:0.945">-16.0</td></tr><tr><th>2</th><td class="cell down strong" style="--v:0.862">-14.6</td><td class="cell down strong" style="--v:0.832">-14.1</td><td class="cell down strong" style="--v:0.806">-13.6</td></tr><tr><th>3</th><td class="cell down strong" style="--v:0.780">-13.2</td><td class="cell down strong" style="--v:0.750">-12.7</td><td class="cell down strong best" style="--v:0.723">-12.2</td></tr><tr><th>4</th><td class="cell down strong" style="--v:0.815">-13.8</td><td class="cell down strong" style="--v:0.785">-13.3</td><td class="cell down strong" style="--v:0.759">-12.8</td></tr></table></div>
+<h3>Best version against SPY, first 4 years</h3>
+<div class="scroll"><table><tr><th>Metric</th><th class="num">Turn of the month, best version</th><th class="num">Buy-and-hold SPY</th></tr><tr><td>Total return</td><td class="num">25.54%</td><td class="num">94.29%</td></tr><tr><td>CAGR (return per year)</td><td class="num">5.86%</td><td class="num">18.08%</td></tr><tr><td>Sharpe ratio</td><td class="num">1.03</td><td class="num">1.63</td></tr><tr><td>Max drawdown</td><td class="num">-7.33%</td><td class="num">-8.54%</td></tr><tr><td>Profit factor</td><td class="num">1.38</td><td class="num">1.31</td></tr><tr><td>Trades</td><td class="num">48</td><td class="num">1</td></tr><tr><td>Exposure (share of days invested)</td><td class="num">27.81%</td><td class="num">100.00%</td></tr><tr><td>After-tax total return</td><td class="num">19.75%</td><td class="num">80.11%</td></tr><tr><td>After-tax CAGR</td><td class="num">4.61%</td><td class="num">15.86%</td></tr></table></div>
+<h3>Shuffle test detail</h3>
+<p class="note">Total log return of the best version on the real prices: 0.2275.
+On shuffled prices, re-optimised each time: median 0.2189,
+95th percentile 0.3759. A real edge should sit far above the 95th percentile.</p>
+</section>
+<section class="idea" id="volatility_filter">
+<h2>7. Volatility filter</h2>
+<p><b>Dead at gate 1, gate 2.</b> In its first 4 years (1993 to 1997) the best version trailed SPY by 3.23% a year. 1,076 of 5,000 shuffled price histories did at least as well (p = 0.2154, needed below 0.0014), so even that result looks like luck.</p>
+<p class="note"><b>Rule:</b> Hold SPY only while its recent volatility is below a percentile of the past year.<br>
+<b>Why it might work, and who loses:</b> Stormy markets tend to stay stormy, and those stretches have had poor returns for the risk taken. The loser is whoever must stay fully invested through them.<br>
+<b>Tested on:</b> SPY, first 4 years 1993-02-01 to 1997-01-23.
+<b>Versions tried:</b> 9. <b>Best version:</b> percentile 90, window 10.</p>
+<h3>Gates</h3>
+<div class="scroll"><table><tr><th>Gate</th><th>Result</th><th>Key number</th></tr><tr><td>1. Beat SPY on the first 4 years</td><td><span class="badge FAIL">FAIL</span></td><td>-3.23% a year after costs, -4.03% after tax</td></tr><tr><td>2. Better than luck (shuffle test)</td><td><span class="badge FAIL">FAIL</span></td><td>1,076 of 5,000 shuffled histories did at least as well: p = 0.2154, needed below 0.0014</td></tr><tr><td>3. Beat SPY out of sample (walk-forward)</td><td><span class="badge none">not run</span></td><td>not run, data left unspent</td></tr><tr><td>4. Better than luck out of sample</td><td><span class="badge none">not run</span></td><td>not run</td></tr></table></div>
+<h3>Every version tried</h3>
+<p class="note">Return per year minus buy-and-hold SPY, in percentage points, after costs, on the first 4 years. Blue beats SPY, red trails it. The outlined cell is the best version.</p><div class="scroll"><table class="heat"><tr><th>percentile \ window</th><th>10</th><th>20</th><th>40</th></tr><tr><th>50</th><td class="cell down strong" style="--v:0.695">-8.7</td><td class="cell down strong" style="--v:1.000">-12.5</td><td class="cell down strong" style="--v:0.928">-11.6</td></tr><tr><th>70</th><td class="cell down strong" style="--v:0.713">-8.9</td><td class="cell down strong" style="--v:0.777">-9.7</td><td class="cell down strong" style="--v:0.760">-9.5</td></tr><tr><th>90</th><td class="cell down best" style="--v:0.259">-3.2</td><td class="cell down" style="--v:0.473">-5.9</td><td class="cell down" style="--v:0.444">-5.5</td></tr></table></div>
+<h3>Best version against SPY, first 4 years</h3>
+<div class="scroll"><table><tr><th>Metric</th><th class="num">Volatility filter, best version</th><th class="num">Buy-and-hold SPY</th></tr><tr><td>Total return</td><td class="num">73.89%</td><td class="num">94.29%</td></tr><tr><td>CAGR (return per year)</td><td class="num">14.85%</td><td class="num">18.08%</td></tr><tr><td>Sharpe ratio</td><td class="num">1.69</td><td class="num">1.63</td></tr><tr><td>Max drawdown</td><td class="num">-5.71%</td><td class="num">-8.54%</td></tr><tr><td>Profit factor</td><td class="num">1.42</td><td class="num">1.31</td></tr><tr><td>Trades</td><td class="num">19</td><td class="num">1</td></tr><tr><td>Exposure (share of days invested)</td><td class="num">63.36%</td><td class="num">100.00%</td></tr><tr><td>After-tax total return</td><td class="num">56.36%</td><td class="num">80.11%</td></tr><tr><td>After-tax CAGR</td><td class="num">11.83%</td><td class="num">15.86%</td></tr></table></div>
+<h3>Shuffle test detail</h3>
+<p class="note">Total log return of the best version on the real prices: 0.5533.
+On shuffled prices, re-optimised each time: median 0.4717,
+95th percentile 0.6425. A real edge should sit far above the 95th percentile.</p>
+</section>
+<section class="idea" id="mean_reversion">
+<h2>8. Short-term mean reversion</h2>
+<p><b>Dead at gate 1, gate 2.</b> In its first 4 years (1993 to 1997) the best version trailed SPY by 10.63% a year. 82 of 5,000 shuffled price histories did at least as well (p = 0.0166, needed below 0.0013), so even that result looks like luck.</p>
+<p class="note"><b>Rule:</b> Hold SPY only while its return over the last few days is below a negative threshold.<br>
+<b>Why it might work, and who loses:</b> After a sharp drop, some sellers are forced or panicked, and prices tend to bounce once that selling is done. The loser is the panicked seller.<br>
+<b>Tested on:</b> SPY, first 4 years 1993-02-01 to 1997-01-23.
+<b>Versions tried:</b> 12. <b>Best version:</b> drop 0.01, lookback 5.</p>
+<h3>Gates</h3>
+<div class="scroll"><table><tr><th>Gate</th><th>Result</th><th>Key number</th></tr><tr><td>1. Beat SPY on the first 4 years</td><td><span class="badge FAIL">FAIL</span></td><td>-10.63% a year after costs, -10.10% after tax</td></tr><tr><td>2. Better than luck (shuffle test)</td><td><span class="badge FAIL">FAIL</span></td><td>82 of 5,000 shuffled histories did at least as well: p = 0.0166, needed below 0.0013</td></tr><tr><td>3. Beat SPY out of sample (walk-forward)</td><td><span class="badge none">not run</span></td><td>not run, data left unspent</td></tr><tr><td>4. Better than luck out of sample</td><td><span class="badge none">not run</span></td><td>not run</td></tr></table></div>
+<h3>Every version tried</h3>
+<p class="note">Return per year minus buy-and-hold SPY, in percentage points, after costs, on the first 4 years. Blue beats SPY, red trails it. The outlined cell is the best version.</p><div class="scroll"><table class="heat"><tr><th>drop \ lookback</th><th>1</th><th>2</th><th>3</th><th>5</th></tr><tr><th>0.01</th><td class="cell down strong" style="--v:0.949">-17.1</td><td class="cell down strong" style="--v:0.925">-16.6</td><td class="cell down strong" style="--v:0.878">-15.8</td><td class="cell down best" style="--v:0.591">-10.6</td></tr><tr><th>0.02</th><td class="cell down strong" style="--v:0.952">-17.1</td><td class="cell down strong" style="--v:0.934">-16.8</td><td class="cell down strong" style="--v:0.848">-15.2</td><td class="cell down strong" style="--v:0.694">-12.5</td></tr><tr><th>0.03</th><td class="cell down strong" style="--v:0.990">-17.8</td><td class="cell down strong" style="--v:0.989">-17.8</td><td class="cell down strong" style="--v:1.000">-18.0</td><td class="cell down strong" style="--v:0.833">-15.0</td></tr></table></div>
+<h3>Best version against SPY, first 4 years</h3>
+<div class="scroll"><table><tr><th>Metric</th><th class="num">Short-term mean reversion, best version</th><th class="num">Buy-and-hold SPY</th></tr><tr><td>Total return</td><td class="num">33.29%</td><td class="num">94.29%</td></tr><tr><td>CAGR (return per year)</td><td class="num">7.46%</td><td class="num">18.08%</td></tr><tr><td>Sharpe ratio</td><td class="num">1.36</td><td class="num">1.63</td></tr><tr><td>Max drawdown</td><td class="num">-5.62%</td><td class="num">-8.54%</td></tr><tr><td>Profit factor</td><td class="num">1.74</td><td class="num">1.31</td></tr><tr><td>Trades</td><td class="num">57</td><td class="num">1</td></tr><tr><td>Exposure (share of days invested)</td><td class="num">16.39%</td><td class="num">100.00%</td></tr><tr><td>After-tax total return</td><td class="num">25.09%</td><td class="num">80.11%</td></tr><tr><td>After-tax CAGR</td><td class="num">5.76%</td><td class="num">15.86%</td></tr></table></div>
+<h3>Shuffle test detail</h3>
+<p class="note">Total log return of the best version on the real prices: 0.2873.
+On shuffled prices, re-optimised each time: median 0.1291,
+95th percentile 0.2519. A real edge should sit far above the 95th percentile.</p>
+</section>
+<section class="idea" id="breakout">
+<h2>9. Breakout</h2>
+<p><b>Dead at gate 2.</b> In its first 4 years (1999 to 2003) the best version beat SPY by 13.29% a year, but 1,843 of 5,000 shuffled price histories did at least as well (p = 0.3687, needed below 0.0011), so that looks like luck.</p>
+<p class="note"><b>Rule:</b> Buy QQQ at a new N-day closing high and sell at a new M-day closing low.<br>
+<b>Why it might work, and who loses:</b> People anchor on old highs and sell there, so a price that pushes through has absorbed that selling and often keeps going. The loser is whoever sold at the old high.<br>
+<b>Tested on:</b> QQQ, first 4 years 1999-03-11 to 2003-03-13.
+<b>Versions tried:</b> 8. <b>Best version:</b> entry 100, exit 20.</p>
+<h3>Gates</h3>
+<div class="scroll"><table><tr><th>Gate</th><th>Result</th><th>Key number</th></tr><tr><td>1. Beat SPY on the first 4 years</td><td><span class="badge PASS">PASS</span></td><td>+13.29% a year after costs, +12.10% after tax</td></tr><tr><td>2. Better than luck (shuffle test)</td><td><span class="badge FAIL">FAIL</span></td><td>1,843 of 5,000 shuffled histories did at least as well: p = 0.3687, needed below 0.0011</td></tr><tr><td>3. Beat SPY out of sample (walk-forward)</td><td><span class="badge none">not run</span></td><td>not run, data left unspent</td></tr><tr><td>4. Better than luck out of sample</td><td><span class="badge none">not run</span></td><td>not run</td></tr></table></div>
+<h3>Every version tried</h3>
+<p class="note">Return per year minus buy-and-hold SPY, in percentage points, after costs, on the first 4 years. Blue beats SPY, red trails it. The outlined cell is the best version.</p><div class="scroll"><table class="heat"><tr><th>exit \ entry</th><th>50</th><th>100</th><th>200</th><th>250</th></tr><tr><th>20</th><td class="cell up" style="--v:0.539">+7.2</td><td class="cell up strong best" style="--v:1.000">+13.3</td><td class="cell up strong" style="--v:0.937">+12.5</td><td class="cell up" style="--v:0.527">+7.0</td></tr><tr><th>50</th><td class="cell up strong" style="--v:0.727">+9.7</td><td class="cell up strong" style="--v:0.880">+11.7</td><td class="cell up strong" style="--v:0.740">+9.8</td><td class="cell up" style="--v:0.340">+4.5</td></tr></table></div>
+<h3>Best version against SPY, first 4 years</h3>
+<div class="scroll"><table><tr><th>Metric</th><th class="num">Breakout, best version</th><th class="num">Buy-and-hold SPY</th></tr><tr><td>Total return</td><td class="num">17.67%</td><td class="num">-31.80%</td></tr><tr><td>CAGR (return per year)</td><td class="num">4.16%</td><td class="num">-9.13%</td></tr><tr><td>Sharpe ratio</td><td class="num">0.32</td><td class="num">-0.30</td></tr><tr><td>Max drawdown</td><td class="num">-26.76%</td><td class="num">-47.52%</td></tr><tr><td>Profit factor</td><td class="num">1.10</td><td class="num">0.93</td></tr><tr><td>Trades</td><td class="num">5</td><td class="num">1</td></tr><tr><td>Exposure (share of days invested)</td><td class="num">15.79%</td><td class="num">100.00%</td></tr><tr><td>After-tax total return</td><td class="num">12.36%</td><td class="num">-31.81%</td></tr><tr><td>After-tax CAGR</td><td class="num">2.96%</td><td class="num">-9.14%</td></tr></table></div>
+<h3>Shuffle test detail</h3>
+<p class="note">Total log return of the best version on the real prices: 0.1627.
+On shuffled prices, re-optimised each time: median 0.0698,
+95th percentile 0.6158. A real edge should sit far above the 95th percentile.</p>
+</section>
+
+<h2>Is the tester itself trustworthy?</h2>
+<p class="lede">Before any verdict is believed, the gates are run on made-up data where the right answer
+is known. Random strategies must fail. A strategy on data with a planted edge must pass.</p>
+<div class="scroll"><table><tr><th>Strategy</th><th>Made-up data</th><th class="num">Gate</th><th class="num">p</th>
+<th>Gate says</th><th>Expected</th><th>Check</th></tr><tr><td>random signal</td><td>real SPY development window</td><td class="num">2</td><td class="num">0.1489</td><td>fail</td><td>fail</td><td>OK</td></tr><tr><td>random signal</td><td>random walk</td><td class="num">4</td><td class="num">0.9851</td><td>fail</td><td>fail</td><td>OK</td></tr><tr><td>SMA crossover</td><td>random walk</td><td class="num">2</td><td class="num">0.6294</td><td>fail</td><td>fail</td><td>OK</td></tr><tr><td>SMA crossover</td><td>random walk</td><td class="num">4</td><td class="num">0.5920</td><td>fail</td><td>fail</td><td>OK</td></tr><tr><td>SMA crossover</td><td>planted trend</td><td class="num">2</td><td class="num">0.0010</td><td>pass</td><td>pass</td><td>OK</td></tr><tr><td>SMA crossover</td><td>planted trend</td><td class="num">4</td><td class="num">0.0050</td><td>pass</td><td>pass</td><td>OK</td></tr><tr><td>random portfolio</td><td>8 random walks</td><td class="num">2</td><td class="num">0.7403</td><td>fail</td><td>fail</td><td>OK</td></tr><tr><td>random portfolio</td><td>8 random walks</td><td class="num">4</td><td class="num">0.7711</td><td>fail</td><td>fail</td><td>OK</td></tr><tr><td>dual momentum</td><td>8 random walks</td><td class="num">2</td><td class="num">0.0939</td><td>fail</td><td>fail</td><td>OK</td></tr><tr><td>dual momentum</td><td>8 random walks</td><td class="num">4</td><td class="num">0.8607</td><td>fail</td><td>fail</td><td>OK</td></tr><tr><td>dual momentum</td><td>8 planted trends</td><td class="num">2</td><td class="num">0.0010</td><td>pass</td><td>pass</td><td>OK</td></tr><tr><td>dual momentum</td><td>8 planted trends</td><td class="num">4</td><td class="num">0.0050</td><td>pass</td><td>pass</td><td>OK</td></tr><tr><td>DTFM</td><td>8 random walks</td><td class="num">2</td><td class="num">0.0669</td><td>fail</td><td>fail</td><td>OK</td></tr><tr><td>DTFM</td><td>8 random walks</td><td class="num">4</td><td class="num">0.8209</td><td>fail</td><td>fail</td><td>OK</td></tr><tr><td>DTFM</td><td>8 planted trends</td><td class="num">2</td><td class="num">0.0010</td><td>pass</td><td>pass</td><td>OK</td></tr><tr><td>DTFM</td><td>8 planted trends</td><td class="num">4</td><td class="num">0.0050</td><td>pass</td><td>pass</td><td>OK</td></tr></table></div>
+<p class="note">False alarms: on 100 random walks the shuffle gate fired
+8% of the time at the 5% level and
+2% at the 1% level.</p>
+<h3>How small an edge can it see?</h3>
+<table class="heat" style="text-align:left"><tr><th>Planted trend per day</th><th>Detected at the 1% bar</th></tr><tr><td class="num">0.1%</td><td class="num">1 of 20</td></tr><tr><td class="num">0.2%</td><td class="num">9 of 20</td></tr><tr><td class="num">0.3%</td><td class="num">17 of 20</td></tr></table>
+<p class="note">A weak real edge can be missed. A dead verdict means the idea was not shown to be better than luck.</p>
+
+<h2>A reality check: DTFM in a real paper account</h2>
+<p class="lede">The DTFM rules were also run with fake money in a paper-trading account, on 7 large
+stocks, from 2026-07-17 to 2026-11-16.</p>
+<div class="tiles">
+<div class="tile"><b>-2.16%</b><span>paper account</span></div>
+<div class="tile"><b>-0.04%</b><span>SPY with dividends, same dates</span></div>
+<div class="tile"><b>-2.12%</b><span>paper minus SPY</span></div>
+</div>
+<p class="note">The lab verdict and the paper run point the same way. Four months is far too short to
+prove anything alone, the paper run used stocks where the lab used ETFs, and the paper run was not a
+clean run of the rules.</p>
+<h2>Assumptions and limits</h2>
+<ul>
+<li>Daily bars from yahoo, adjusted for splits and dividends, up to 2025-11-13. Costs: 0 bps fee plus 2 bps slippage on whatever changes hands. Tax estimate: 22% on gains held a year or less, 15% on longer holds. Cash earns 0. Trades happen at the close that produced the signal.</li>
+<li>Each verdict rests on one 4-year window. Ideas that beat SPY did so in windows where SPY fell or lagged, and the shuffle test showed no timing skill behind it.</li>
+<li>The shuffle test credits timing only. It keeps each asset's total return, so an asset that simply did better earns the idea nothing.</li>
+<li>Past results say nothing certain about the future. This is a research project, not advice.</li>
+</ul>
+</main></body></html>

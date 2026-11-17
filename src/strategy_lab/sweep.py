@@ -9,7 +9,7 @@ import pandas as pd
 
 from .config import Costs
 from .data import Bars
-from .engine import backtest, buy_and_hold
+from .engine import buy_and_hold
 from .strategies import Family
 
 
@@ -17,11 +17,11 @@ def sweep(family: Family, bars: Bars, benchmark_bars: Bars, costs: Costs) -> pd.
     """Backtest every parameter set. One row per set, scored against the benchmark."""
     if not np.array_equal(bars.dates, benchmark_bars.dates):
         raise ValueError("strategy and benchmark must cover the same bars")
-    positions = family.position_matrix(bars)
+    decisions = family.decisions(bars)  # works for single-asset and multi-asset families
     bench = buy_and_hold(benchmark_bars, costs).metrics
     rows = []
     for k, params in enumerate(family.grid):
-        m = backtest(bars, positions[k], costs).metrics
+        m = family.backtest(bars, decisions[k], costs).metrics
         rows.append({**params, **m, "excess_cagr": m["cagr"] - bench["cagr"]})
     return pd.DataFrame(rows)
 

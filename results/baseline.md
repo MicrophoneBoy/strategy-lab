@@ -30,4 +30,4 @@ Window: the development window, 1993-02-01 to 1997-01-23 (1007 bars). Walk-forwa
 - Shape: **spike** (spike score 1.30; above 1 means the best cell stands alone)
 - Share of the grid that beat SPY: 0%
 
-Tests counted so far: 1 idea(s), 90 parameter sets.
+Tests counted so far: 9 idea(s), 154 parameter sets.

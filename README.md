@@ -9,7 +9,9 @@ that counts as a correct result.
 
 Status: nine classic ideas have been through the gates. None survived. The full report is
 [`results/report.html`](results/report.html) (open it in a browser), and the short table is in
-[`results/ideas.md`](results/ideas.md).
+[`results/ideas.md`](results/ideas.md). The whole study, from method to limits, is written up as a
+technical report:
+[`docs/technical-report/strategy-lab-technical-report.pdf`](docs/technical-report/strategy-lab-technical-report.pdf).
 
 ## How it works
 
@@ -99,6 +101,7 @@ uv run lab gates --idea dtfm   # run any idea through the gates (see --help for 
 uv run lab add-data IEF        # the bond ETF that idea 4 needs
 uv run lab summary             # one table with every verdict
 uv run lab report              # results/report.html: every idea, sweep, gate and verdict
+uv run python docs/technical-report/build.py   # the technical report, HTML and PDF
 ```
 
 `uv run lab paper-compare` rebuilds the paper-run comparison. It needs Alpaca paper keys, since

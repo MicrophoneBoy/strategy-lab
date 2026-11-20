@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="author" content="Michael (Bowei) Feng">
+<title>Do Classic Trading Rules Beat Buy-and-Hold After Costs and Taxes?</title>
+<style>
+  @page {
+    size: Letter;
+    margin: 0.85in 0.95in 0.9in;
+    @bottom-center { content: counter(page); font: 9pt Cambria, Georgia, serif; color: #52514e; }
+  }
+  :root { --ink: #111110; --muted: #52514e; --rule: #2b2b2a; --hair: #c9c7c0; --tint: #f4f3ef; }
+  html { background: #fff; }
+  body {
+    margin: 0 auto; max-width: 6.6in; background: #fff; color: var(--ink);
+    font: 10.5pt/1.4 Cambria, Georgia, "Times New Roman", serif;
+    font-variant-numeric: lining-nums;
+  }
+  p { margin: 0 0 0.62em; text-align: justify; hyphens: auto; }
+  header { text-align: center; margin: 0.1in 0 0.22in; }
+  header p { text-align: center; }
+  header h1 { font-size: 17pt; line-height: 1.22; margin: 0 0 0.16in; font-weight: 700; text-wrap: balance; }
+  header .author { font-size: 11.5pt; margin: 0 0 0.03in; }
+  header .meta { font-size: 9.5pt; color: var(--muted); margin: 0; }
+  .abstract { margin: 0.18in 0.3in 0.12in; font-size: 9.8pt; }
+  .abstract h2 { font-size: 10pt; text-align: center; margin: 0 0 0.06in; letter-spacing: 0.04em; }
+  .keywords { margin: 0 0.3in 0.25in; font-size: 9.3pt; color: var(--muted); }
+  h2 { font-size: 12.5pt; margin: 1.15em 0 0.45em; break-after: avoid; }
+  h3 { font-size: 10.8pt; font-style: italic; font-weight: 600; margin: 0.9em 0 0.35em; break-after: avoid; }
+  ol, ul { margin: 0 0 0.62em; padding-left: 1.4em; }
+  li { margin: 0 0 0.25em; text-align: justify; }
+  .eq { text-align: center; margin: 0.45em 0 0.65em; font-style: italic; }
+  .eq span { font-style: normal; }
+  i.v { font-style: italic; }
+  code { font: 8.8pt Consolas, "Courier New", monospace; background: var(--tint); padding: 0 0.2em; }
+  a { color: inherit; text-decoration: none; }
+  figure { margin: 0.9em 0 1em; break-inside: avoid; }
+  figure svg { width: 100%; height: auto; display: block; }
+  figcaption, .tcap { font-size: 9pt; line-height: 1.35; color: var(--ink); text-align: justify; }
+  figcaption { margin-top: 0.35em; }
+  .tcap { margin: 0 0 0.3em; }
+  figcaption b, .tcap b { font-weight: 700; }
+  .tablewrap { margin: 0.9em 0 1em; break-inside: avoid; }
+  .tablewrap.split { break-inside: auto; }
+  tr { break-inside: avoid; }
+  table { width: 100%; border-collapse: collapse; font-size: 8.4pt; line-height: 1.28; }
+  thead th { border-top: 1.4px solid var(--rule); border-bottom: 0.8px solid var(--rule); padding: 0.28em 0.35em; text-align: left; vertical-align: bottom; font-weight: 700; }
+  tbody td { padding: 0.24em 0.35em; vertical-align: top; text-align: left; }
+  tbody tr:last-child td { border-bottom: 1.4px solid var(--rule); }
+  td.n, th.n { text-align: right; white-space: nowrap; }
+  td.c, th.c { text-align: center; }
+  .small { font-size: 9pt; }
+  .refs p { text-align: left; padding-left: 1.6em; text-indent: -1.6em; margin: 0 0 0.35em; font-size: 9.3pt; }
+  .appendix { break-before: page; }
+  .note { color: var(--muted); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Do Classic Trading Rules Beat Buy&#8209;and&#8209;Hold After Costs and Taxes?<br>A Permutation-Tested Study of Nine Rules on US ETFs</h1>
+  <p class="author">Michael (Bowei) Feng</p>
+  <p class="meta">Technical report, ${report_month} &nbsp;&middot;&nbsp; Code and results: github.com/MicrophoneBoy/strategy-lab</p>
+</header>
+
+<section class="abstract">
+  <h2>ABSTRACT</h2>
+  <p>Simple trading rules are easy to backtest and easy to overfit. This report tests nine well-known rules on US exchange-traded funds against a strict standard: a rule succeeds only if it beats buy-and-hold SPY after transaction costs and an estimate of US federal tax, and only if a permutation test shows that the result is unlikely to be luck. The parameter grids and the testing order were fixed before any rule was run, the permutation pass bar was divided by the number of rules tested, and the most recent 12 months of data were locked away as a final holdout. The testing pipeline was first validated on synthetic data, where it rejected random signals and detected planted trends. Across ${n_ideas} rules and ${n_sets} parameter sets, ${n_g1_pass_word} rules beat SPY in their development window, but none passed the permutation test: for each of those ${n_g1_pass_word} rules, at least ${share_min_g1} of shuffled price histories did as well. Every one of those in-sample wins came from a window that overlapped the 2000 to 2002 bear market. The study finds no evidence that these rules time the market, so for the stated goal its answer is to hold the index. A four-month paper-trading run of one rule pointed the same way.</p>
+</section>
+<p class="keywords"><b>Keywords:</b> backtesting, permutation test, multiple testing, data snooping, market timing, exchange-traded funds</p>
+
+<h2>1. Introduction</h2>
+<p>Moving-average crossovers, momentum rotations and calendar effects are described in books, forums and a growing number of automated tools, usually with a backtest that beats the market. Two problems make most of these backtests unreliable. The first is overfitting: when a rule's parameters are tuned on the same data used to judge it, the best setting partly reflects noise. The second is multiple testing: anyone who tries many rules will find some that look strong by chance alone (White, 2000; Bailey and L&oacute;pez de Prado, 2014; Harvey, Liu and Zhu, 2016). Even effects that survive academic review tend to shrink once they are published (McLean and Pontiff, 2016), and most professionally managed US equity funds trail the S&amp;P 500 over long horizons (S&amp;P Dow Jones Indices, SPIVA U.S. Scorecard).</p>
+<p>This report asks a narrow, practical question. Do well-known trading rules, applied to liquid US exchange-traded funds (ETFs), beat buying and holding SPY after costs and taxes, by more than luck would explain? The bar is buy-and-hold SPY because a rule that merely makes money is of no use to an investor who can earn the index return with no effort. If no rule clears it, the right answer is to hold the index, and the study counts that as a valid result.</p>
+<p>The work has four parts:</p>
+<ol>
+  <li>A small open-source backtesting lab: a no-lookahead engine with costs and a tax estimate, four sequential gates, a ledger that tightens the pass bar as more rules are tried, and a final holdout locked before any research began (Sections 2 and 3).</li>
+  <li>A validation of the testing pipeline on synthetic data, including how often it detects planted edges of different sizes (Section 4).</li>
+  <li>Gate-by-gate verdicts for nine rules whose grids and order were fixed in advance (Sections 5 and 6).</li>
+  <li>A comparison of one verdict with a real four-month paper-trading run of the same rule (Section 6.4).</li>
+</ol>
+
+<h2>2. Data</h2>
+<p>The study uses daily bars from Yahoo Finance, adjusted for splits and dividends, for ${n_symbols} US ETFs: ${symbols_sentence}. IWM was downloaded but not used by any rule. SPY history starts on ${spy_first}, the nine sector ETFs on ${sector_first}, QQQ on ${qqq_first} and IEF on ${ief_first}.</p>
+<p>Before any research, the most recent ${holdout_months} months were moved to a separate folder and locked. Bars from ${holdout_start} to ${holdout_last} (${holdout_bars} trading days) form a final exam that no rule, sweep or gate may read; a rule that passes all four gates gets exactly one run on them. Research data therefore ends on ${dev_end}. As a cross-check, daily returns from a second source (Alpaca, whose history starts in 2016) matched Yahoo's closely for SPY and XLK, except on seven SPY days with differences above 0.5%, six of them in March 2020.</p>
+<p>Each rule is judged on a development window made of the first ${train_bars} bars, about four years, of its own data. For the rules that trade SPY alone this window runs from ${spy_window}, a strong bull market. For the rules on sector ETFs and QQQ it covers the dot-com crash (Table 3).</p>
+
+<h2>3. Method</h2>
+<h3>3.1 Backtest engine</h3>
+<p>A position <i class="v">p<sub>t</sub></i> in {&minus;1, 0, 1} decided at the close of bar <i class="v">t</i> earns the next bar's log return, <i class="v">r<sub>t+1</sub></i> = ln(<i class="v">C<sub>t+1</sub></i>/<i class="v">C<sub>t</sub></i>). The net return of each bar is</p>
+<p class="eq">R<sub>t+1</sub> = p<sub>t</sub> r<sub>t+1</sub> &minus; c |p<sub>t</sub> &minus; p<sub>t&minus;1</sub>|<span>,</span></p>
+<p>where <i class="v">c</i> is charged on every unit of position change. The configuration uses a commission of ${fee_bps} basis points (the broker used charges none on ETFs) and slippage of ${slippage_bps} basis points, which stands in for half the bid-ask spread and for not trading exactly at the close. A signal can only use prices up to its own close and is paid by the following bar, so it cannot profit from lookahead. Tests confirm that shifting a signal in time changes the result, that a hand-checked five-bar example comes out exactly, and that reruns are byte-identical.</p>
+<p>Multi-asset rules produce portfolio weights <i class="v">w<sub>t,i</sub></i> &ge; 0 with &Sigma;<sub><i class="v">i</i></sub> <i class="v">w<sub>t,i</sub></i> &le; 1: long only, no leverage. Weights drift with prices between rebalances, costs are charged on the value that actually changes hands, and uninvested cash earns nothing. On a single asset the portfolio engine reproduces the single-asset engine exactly, which a test checks.</p>
+
+<h3>3.2 Scoring against SPY</h3>
+<p>Every rule is scored against buy-and-hold SPY over the same dates. The main measure is excess compound annual growth rate (CAGR): the rule's CAGR minus SPY's, after costs. An after-tax version applies rough US federal rates of ${st_rate} on gains from positions held one year or less and ${lt_rate} on longer holds. Gains and losses are netted each year, losses are carried forward, and everything is sold on the last bar. Portfolio rules track first-in, first-out tax lots. Buy-and-hold SPY pays the long-term rate once, at the end, which gives the index a built-in advantage over any rule that trades often.</p>
+
+<h3>3.3 Four gates</h3>
+<p>A rule must pass four gates in order and dies at the first one it fails.</p>
+<ol>
+  <li><b>In-sample excellence.</b> Across the rule's whole parameter grid, the best setting on the development window must beat SPY on CAGR both after costs and after tax.</li>
+  <li><b>In-sample permutation test.</b> The same optimisation is repeated on ${n_perm_is_early} to ${n_perm_is} shuffled copies of the development window. The rule passes only if almost none of them does as well as the real data (Section 3.4).</li>
+  <li><b>Walk-forward.</b> Parameters are chosen on the previous ${train_bars} bars, used to trade the next ${step_bars}, and the window rolls forward up to the holdout. Every traded day is out of sample, and the rule must still beat SPY after costs and tax.</li>
+  <li><b>Walk-forward permutation test.</b> The whole walk-forward run is repeated on ${n_perm_wf} shuffled copies of the data after the first training window.</li>
+</ol>
+<p>Gates 3 and 4 run only for rules that pass gates 1 and 2. The out-of-sample data is therefore used once, and never to choose between rules.</p>
+
+<h3>3.4 Permutation test</h3>
+<p>The permutation test follows Masters (2020). Each bar is split into its overnight gap (previous close to open) and its intraday path (open to high, low and close). Gaps and intraday paths are shuffled separately and the price series is rebuilt. The shuffled series has the same daily moves and the same start and end price, so buy-and-hold earns exactly the same, but any pattern in the order of the moves is destroyed. In multi-asset tests every asset receives the same shuffle, so moves that happened on the same day stay together.</p>
+<p>On each shuffled copy the rule is re-optimised over its full grid, and its score is the best total log return after costs. With <i class="v">n</i> shuffles of which <i class="v">k</i> score at least as well as the real data,</p>
+<p class="eq">p = (1 + k) / (1 + n)<span>.</span></p>
+<p>A small <i class="v">p</i> means the real order of prices holds something the rule exploits. Because each asset's total return is unchanged by the shuffle, the test credits timing only: a rule that wins simply by holding an asset that happened to do well earns nothing for it.</p>
+
+<h3>3.5 Counting tests and fixing rules in advance</h3>
+<p>Each rule tested is another chance to find a lucky winner, so the pass bar for the <i class="v">k</i>-th rule is ${alpha}/<i class="v">k</i>, a Bonferroni correction. A ledger records every rule and every parameter set before it is computed, and the ninth rule needed <i class="v">p</i> below ${alpha_9}. In-sample tests used ${n_perm_is} shuffles from the third rule on (smallest possible <i class="v">p</i> of ${min_possible_p}) and ${n_perm_is_early} for the first two. The walk-forward count was raised from 200 to ${n_perm_wf} before the third rule ran, because 200 shuffles could never produce a <i class="v">p</i>-value below the later bars.</p>
+<p>The rules, their parameter grids, their order and their pass bars were written down and committed before any of them ran, and the code for each rule was committed before its results. One run crashed while saving its output, before any result was displayed. The ledger was restored so that the pass bars stayed as fixed, and the same deterministic runs were repeated.</p>
+
+<h2>4. Validating the tester</h2>
+<p>Before any verdict was trusted, the gates were run on cases with a known answer (Table 1). A random signal must fail, both on real SPY data and on a random walk. Real rules must fail on random walks. The same rules must pass on synthetic prices with a planted trend of ${planted_trend} a day. All ${n_checks} checks gave the expected result. The planted edge also cleared gate 1 by a wide margin, beating buy-and-hold by ${planted_g1} a year after tax in sample and ${planted_g3} out of sample.</p>
+${table_tester}
+<p>Two further checks measure error rates (Figure 1). On ${calib_series} random walks with no edge, using ${calib_perms} shuffles each, the in-sample test gave <i class="v">p</i> below 0.05 for ${fa5} of them and below 0.01 for ${fa1}, consistent with the nominal rates given only ${calib_series} series. Power is the weak point. At the 1% level the test detected a planted trend of ${p1_trend} a day in ${p1_det} of ${p1_n} series, ${p2_trend} in ${p2_det} of ${p2_n}, and ${p3_trend} in ${p3_det} of ${p3_n}. The gates are built to catch strong edges and will often miss weak ones.</p>
+${fig_power}
+
+<h2>5. The nine rules</h2>
+<p>Rule 1, a moving-average crossover on SPY, was the baseline used to build the engine. Rule 2, dual-timeframe momentum (DTFM), comes from an earlier four-month paper-trading experiment by the author on seven mega-cap stocks. Testing it on today's mega-caps would flatter it, since their success is known in hindsight, so its fixed rules were ported to QQQ and nine sector ETFs, and three details the original left open were pinned before the run. Rules 3 to 9 were drafted with a stated reason why an edge might exist and who would lose on the other side (Appendix A), then ordered so that the best-supported ideas were tested first, while the pass bar was still looser. A tenth candidate, a day-of-the-week effect, was dropped before testing. Table 2 lists the rules.</p>
+<p>The rules draw on well-known strands of research: moving-average and breakout rules (Brock, Lakonishok and LeBaron, 1992), momentum across stocks, sectors and asset classes (Jegadeesh and Titman, 1993; Moskowitz and Grinblatt, 1999; Moskowitz, Ooi and Pedersen, 2012; Antonacci, 2014), low volatility (Baker, Bradley and Wurgler, 2011), the turn of the month (Ariel, 1987), volatility timing (Moreira and Muir, 2017) and short-term reversal (Lo and MacKinlay, 1990). The versions tested here are simple ETF rules inspired by these ideas, and none of them replicates a paper's exact method.</p>
+${table_rules}
+
+<h2>6. Results</h2>
+<h3>6.1 Baseline: a moving-average crossover on SPY</h3>
+<p>The common 50-day and 200-day crossover on SPY, over ${base_window}, grew ${base_cagr} a year against ${bh_cagr} for buy-and-hold, with a Sharpe ratio of ${base_sharpe} against ${bh_sharpe} and a deeper maximum drawdown (${base_mdd} against ${bh_mdd}). After the tax estimate the gap remained: ${base_at} against ${bh_at}. None of the ${sweep_n} settings in the grid beat SPY (Figure 2). The best one, fast ${best_fast} and slow ${best_slow}, still trailed by ${best_excess} a year and stood well above its neighbours, a lone spike that is the usual sign of a lucky setting.</p>
+${fig_heatmap}
+
+<h3>6.2 All nine rules</h3>
+<p>Table 3 gives every verdict. ${n_g1_pass_cap} of the nine rules passed gate 1, beating SPY in their development window by between ${g1_min} and ${g1_max} a year after costs (Figure 3). None passed gate 2 (Figure 4): for the gate 1 passes, between ${share_min_g1} and ${share_max_g1} of shuffled price histories did at least as well as the real one. The closest any rule came to its bar was short-term mean reversion, with <i class="v">p</i> = ${mr_p}, about ${mr_ratio} times its bar of ${mr_bar}, and it had already failed gate 1 by trailing SPY by ${mr_excess} a year. No rule reached gates 3 and 4, so neither the walk-forward data nor the holdout was ever used.</p>
+${table_results}
+${fig_gate1}
+${fig_pvalues}
+
+<h3>6.3 Why the in-sample wins were not skill</h3>
+<p>The two largest gate 1 wins show the pattern (Figure 5). Over ${dtfm_window}, DTFM lost ${dtfm_tr} while SPY lost ${spy_tr}. It beat the index because it was only ${dtfm_exp} invested on average, which kept its maximum drawdown to ${dtfm_mdd} against ${spy_mdd} for SPY. Breakout on QQQ gained ${bo_tr} over the same years while invested ${bo_exp} of the time, with ${bo_trades} trades. Both wins came from standing aside during a crash, and a rule that is mostly out of a falling market will beat it whatever its timing.</p>
+<p>The permutation test asks whether the rules chose their moments well, and the answer is no. DTFM's real score, a total log return of ${dtfm_real}, was below the median shuffled score of ${dtfm_med}, and ${dtfm_k} of ${dtfm_n} shuffled histories did at least as well. For breakout, ${bo_k} of ${bo_n} did. The SPY-only rules show the mirror image: they were judged in the 1993 to 1997 bull market, where any time out of the market was costly, and all four failed gate 1.</p>
+${fig_curves}
+
+<h3>6.4 Out-of-sample check: a real paper-trading run</h3>
+<p>DTFM was also run forward in a paper-trading account with simulated money, from ${paper_start} to ${paper_end}, on its original seven mega-cap stocks. The account went from ${paper_start_eq} to ${paper_end_eq}, a return of ${paper_ret}. Over the same dates SPY returned ${spy_price_ret} on price alone from the experiment's recorded starting price, and ${spy_div_ret} including dividends, so the paper run trailed SPY by ${paper_gap}. Reading those two SPY prices touched the locked holdout period; it was logged as a benchmark-only read, and no rule was fitted or scored on those bars. Four months is far too short to judge a rule, the paper run traded stocks where the lab used ETFs, and the run had several data errors, so this is a loose check. It points the same way as the lab: no sign of an edge over the index.</p>
+
+<h2>7. Discussion</h2>
+<p><b>What a failed gate means.</b> A rule that fails was not shown to be better than luck under this design. That is weaker than proof of no edge: Section 4 shows the test misses weak edges, and each rule was judged on a single four-year window. The result is best read as "none of these rules shows an edge strong enough to be worth trading".</p>
+<p><b>How far the rules were from passing.</b> To pass, a rule needed a <i class="v">p</i>-value below its Bonferroni bar, which ranged from ${alpha_1} for the first rule to ${alpha_9} for the ninth. The gate 1 winners had <i class="v">p</i>-values between ${p_min_g1} and ${p_max_g1}, so these are not near misses. For ${n_median_better} of the nine rules, the median shuffled history scored at least as well as the real one.</p>
+<p><b>Taxes did not decide anything.</b> The tax estimate lowered the excess return of ${n_tax_lower} of the ${n_g1_pass_word} gate 1 winners but changed no rule's gate 1 result. Every rule failed gate 2, the test of timing.</p>
+<p><b>Practical answer.</b> For an investor whose goal is to beat the index after costs and taxes, these results support holding a low-cost index fund. The more durable output of the project is the workflow: fixing rules before looking, counting every test, validating the tester, and locking a holdout. The same discipline applies to forecasting models and to any quantitative claim that rests on a backtest.</p>
+
+<h2>8. Limitations</h2>
+<ul>
+  <li><b>One window per rule.</b> Gates 1 and 2 judge each rule on the first four years of its own data. An edge that exists only in other periods would be missed.</li>
+  <li><b>Low power for weak edges.</b> The permutation gate detected a planted trend of ${p1_trend} a day in only ${p1_det} of ${p1_n} series. Realistic edges are likely weaker than that.</li>
+  <li><b>Timing only.</b> The shuffle keeps each asset's total return, so the test gives no credit for choosing assets that simply did better.</li>
+  <li><b>Walk-forward untested on real data.</b> Gates 3 and 4 were validated on synthetic data only, because no rule reached them.</li>
+  <li><b>Small universe.</b> ${n_symbols} US ETFs, daily bars, long-only portfolios, no leverage, no options and no individual stocks.</li>
+  <li><b>Simplified frictions.</b> Flat slippage, trades at the closing price, no interest on cash, flat federal tax rates, and no state tax, tax on dividends or wash-sale rule.</li>
+  <li><b>Data.</b> Yahoo revises its adjusted prices over time, so a fresh download changes results slightly; the two data sources disagreed on a few crash days.</li>
+  <li><b>A strict correction.</b> Bonferroni is conservative. With nine rules the bar fell to ${alpha_9}, so only a very strong edge could pass late in the list.</li>
+</ul>
+
+<h2>9. Conclusion</h2>
+<p>Nine classic trading rules were tested on US ETFs against buy-and-hold SPY, after costs and an estimated tax, with fixed grids, a counted and corrected pass bar, a validated tester and a locked holdout. ${n_g1_pass_cap} rules beat SPY in sample, all in windows that included a bear market, and none beat shuffled versions of its own data. The answer to the study's question is no: none of these rules shows evidence of market timing skill, and for the stated goal the index fund wins. A further round of research would need a design able to see smaller edges, such as many more assets and longer histories, and it would have to be declared in advance as a new round with its own test count.</p>
+
+<h2>References</h2>
+<div class="refs">
+  <p>Antonacci, G. (2014). <i>Dual Momentum Investing: An Innovative Strategy for Higher Returns with Lower Risk</i>. McGraw-Hill.</p>
+  <p>Ariel, R. A. (1987). A monthly effect in stock returns. <i>Journal of Financial Economics</i>, 18(1), 161&#8209;174.</p>
+  <p>Bailey, D. H., and L&oacute;pez de Prado, M. (2014). The deflated Sharpe ratio: Correcting for selection bias, backtest overfitting, and non-normality. <i>Journal of Portfolio Management</i>, 40(5), 94&#8209;107.</p>
+  <p>Baker, M., Bradley, B., and Wurgler, J. (2011). Benchmarks as limits to arbitrage: Understanding the low-volatility anomaly. <i>Financial Analysts Journal</i>, 67(1), 40&#8209;54.</p>
+  <p>Brock, W., Lakonishok, J., and LeBaron, B. (1992). Simple technical trading rules and the stochastic properties of stock returns. <i>Journal of Finance</i>, 47(5), 1731&#8209;1764.</p>
+  <p>Harvey, C. R., Liu, Y., and Zhu, H. (2016). &hellip;and the cross-section of expected returns. <i>Review of Financial Studies</i>, 29(1), 5&#8209;68.</p>
+  <p>Jegadeesh, N., and Titman, S. (1993). Returns to buying winners and selling losers: Implications for stock market efficiency. <i>Journal of Finance</i>, 48(1), 65&#8209;91.</p>
+  <p>Lo, A. W., and MacKinlay, A. C. (1990). When are contrarian profits due to stock market overreaction? <i>Review of Financial Studies</i>, 3(2), 175&#8209;205.</p>
+  <p>Masters, T. (2020). <i>Permutation and Randomization Tests for Trading System Development: Algorithms in C++</i>.</p>
+  <p>McLean, R. D., and Pontiff, J. (2016). Does academic research destroy stock return predictability? <i>Journal of Finance</i>, 71(1), 5&#8209;32.</p>
+  <p>Moreira, A., and Muir, T. (2017). Volatility-managed portfolios. <i>Journal of Finance</i>, 72(4), 1611&#8209;1644.</p>
+  <p>Moskowitz, T. J., and Grinblatt, M. (1999). Do industries explain momentum? <i>Journal of Finance</i>, 54(4), 1249&#8209;1290.</p>
+  <p>Moskowitz, T. J., Ooi, Y. H., and Pedersen, L. H. (2012). Time series momentum. <i>Journal of Financial Economics</i>, 104(2), 228&#8209;250.</p>
+  <p>S&amp;P Dow Jones Indices. SPIVA U.S. Scorecard. Published twice a year.</p>
+  <p>White, H. (2000). A reality check for data snooping. <i>Econometrica</i>, 68(5), 1097&#8209;1126.</p>
+</div>
+
+<section class="appendix">
+<h2>Appendix A. Why each rule might work, and the settings it chose</h2>
+<p>Each rule was written down with a reason an edge might exist and who would be on the losing side of the trade. The last column is the best setting on the development window, the one judged at gates 1 and 2.</p>
+${table_rationale}
+
+<h2>Appendix B. Reproducing the results</h2>
+<p>Everything in this report is produced by the code in the repository. Every result in the text, tables and figures (returns, p-values, counts, settings and dates) is read from the lab's result files or computed by its engine when this document is built, and the build stops if a claim in the text no longer matches the data. The one result taken from elsewhere is the data cross-check in Section 2, recorded in the repository's README.</p>
+<ul>
+  <li><b>Setup:</b> <code>uv sync</code>, then <code>uv run lab fetch</code> (downloads and caches the data and creates the holdout lock).</li>
+  <li><b>Verdicts:</b> <code>uv run lab baseline</code>, <code>uv run lab tester</code>, and <code>uv run lab gates --idea NAME</code> for each rule in Table 2's order, then <code>uv run lab summary</code>.</li>
+  <li><b>This report:</b> <code>uv run python docs/technical-report/build.py</code>.</li>
+  <li><b>Settings:</b> all assumptions are in <code>config.toml</code>: costs, tax rates, window sizes, shuffle counts and the random seed (${seed}). The data fingerprint of the original download is <code>${fingerprint}</code>.</li>
+</ul>
+<p class="note">Yahoo revises adjusted prices over time, so a fresh download can change results slightly; the fingerprint shows when the data differs.</p>
+</section>
+
+</body>
+</html>
